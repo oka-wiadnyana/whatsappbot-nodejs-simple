@@ -24,7 +24,8 @@ Langkah-langkah penggunaan :
    pada terminal, kemudian scan barcode Whatsapp dengan Smartphone yang akan digunakan pada chromium atau terminal, dan Whatsapp bot siap digunakan
  
  ### Kustomisasi Pesan dan Database
- Untuk mengkostumisasi pesan respon, silahkan ubah di file **query.js**, dan untuk merubah koneksi ke database silahkan ubah pada file **db_config.js** 
+ Untuk mengkostumisasi pesan respon, silahkan ubah di file **query.js**, dan untuk merubah koneksi ke database silahkan ubah pada file **db_config.js**.
+ **Penting : Sangat disarankan untuk menggunakan _clone_ Database SIPP**
 
    Feel free to contact me :
 
