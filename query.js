@@ -340,7 +340,7 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
       *Tilang#nomor polisi*. _Contoh : Tilang#DK1234P (nomor polisi tanpa spasi)_`;
 
       resolve(responseMessage);
-    } else if (keyword[0] == "jadwal") {
+    } else if (keyword[0] == "jadwal_sidang") {
       if (keyword.length == 1) {
         let responseMessage =
           "Perintah salah silahkan ketik jadwal#nomor perkara";
