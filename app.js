@@ -33,8 +33,8 @@ client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
 });
 
-//saat diotentifikasi
 client.on("authenticated", (session) => {
+  //saat diotentifikasi
   console.log("AUTHENTICATED", session);
   sessionCfg = session;
   fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
@@ -49,27 +49,13 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-//saat wa sudah siap
 client.on("ready", () => {
+  //saat wa sudah siap
   console.log("READY");
 });
 
-//mulai logika pesan masuk
-// client.on("message", (msg) => {
-//   let keywords = msg.body.toLocaleLowerCase().split("#");
-//   if (keywords[0] == "perkara") {
-//     let hasil = query(
-//       `SELECT * FROM daftar_perkara_tbl WHERE id=${keywords[1]}`
-//     );
-//     hasil.then((res) => {
-//       msg.reply(
-//         `Nomor perkara ${res[0].nomor_perkara} Nama Pihak ${res[0].pihak_1}`
-//       );
-//     });
-//   }
-// });
-
 client.on("message", (msg) => {
+  // Pesan masuk dan keluar
   let message = msg.body.toLocaleLowerCase();
   getData(message).then((res) => {
     msg.reply(res);
@@ -88,6 +74,7 @@ client.on("change_state", (state) => {
 });
 
 client.on("disconnected", (reason) => {
+  // Client on disconected
   console.log("Client was logged out", reason);
   if (reason == "NAVIGATION") {
     fs.unlinkSync("./session.json");
