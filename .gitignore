@@ -1,2 +1,5 @@
 #Ignore node module
 node_modules/
+
+#ignore session
+session.json

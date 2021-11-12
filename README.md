@@ -9,7 +9,7 @@ Langkah-langkah penggunaan :
 1. Silahkan download terlebih dahulu [node-js](https://nodejs.org/en/download/), kemudian install di komputer yang akan dijadikan server untuk whatsapp bot. 
 2. Clone atau download repo ini.
 3. Jalankan terminal dan arahkan ke folder tempat hasil download repo ini.
-4. Download dependenceis :
+4. Download dependencies melalui terminal :
    * Whatsapp web js
        > $ npm i whatsapp-web.js
    * moment.js :
@@ -22,10 +22,13 @@ Langkah-langkah penggunaan :
    > $ node app
 
    pada terminal, kemudian scan barcode Whatsapp dengan Smartphone yang akan digunakan pada chromium atau terminal, dan Whatsapp bot siap digunakan
+ 
+ ### Kustomisasi Pesan dan Database
+ Untuk mengkostumisasi pesan respon, silahkan ubah di file **query.js**, dan untuk merubah koneksi ke database silahkan ubah pada file **db_config.js** 
 
-   Feel fre to contact me :
+   Feel free to contact me :
 
-   <img src="public/telegram.png" width="30" height="30" /> @Okawiadnyana
+   **Telegram**: @Okawiadnyana
 
 
 

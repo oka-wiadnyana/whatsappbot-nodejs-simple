@@ -1,3 +1,4 @@
+// requiring dependencies
 const db = require("./db_config");
 const moment = require("moment");
 //connect ke db
@@ -6,27 +7,346 @@ db.connect((err) => {
   console.log("Connected");
 });
 
+// inisiasi pesan masuk
 const getData = (message) => {
   let keyword = message.split("#");
   return new Promise((resolve, reject) => {
-    if (keyword[0] == "perkara") {
-      let query = `SELECT *FROM daftar_perkara_tbl WHERE id='${keyword[1]}'`;
+    // mulai logic pesan
+    if (keyword[0] == "halo") {
+      let responseMessage = `Halo sobat *PN ......*. Sekarang kami menyediakan beberapa informasi yang bisa Bapak/Ibu akses. Silahkan balas pesan ini dengan mengetik
+*- Perkara*
+_Untuk salinan putusan (bukan salinan resmi), detail biaya perkara, informasi jadwal sidang dan tilang pada *Pengadilan Negeri .....*_
+*- Layanan*
+_Untuk informasi Pelayanan Terpadu Satu Pintu pada *Pengadilan Negeri .....*_
+*- Ecourt*
+_Untuk informasi berperkara secara elektronik pada *Pengadilan Negeri .....*_
+*- Pengaduan*
+_Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri .....*_
+*- Survei*
+_Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri .....*_`;
+      resolve(responseMessage);
+    } else if (keyword[0] == "layanan") {
+      let responseMessage = `Silahkan balas pesan ini dengan mengetikkan layanan yang anda inginkan :
+      *- Pidana*
+      *- Perdata*
+      *- Hukum*`;
 
-      db.query(query, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          let responseMessage;
-          if (result.length != 0) {
-            responseMessage = `Percobaan Nomor perkara adalah ${result[0].nomor_perkara} atas nama ${result[0].pihak_1}`;
-            3;
-          } else {
-            responseMessage = `Tidak ada data, mohon ditulis perintah yang benar, contoh perkara#123/pdt.g/2021/pn bli!`;
-          }
-          resolve(responseMessage);
-        }
-      });
+      resolve(responseMessage);
+    } else if (keyword[0] == "pidana") {
+      let responseMessage = `Silahkan ketik layanan pidana yang anda inginkan :
+      *- Pelimpahan_biasa*
+      *- Pelimpahan_tipiring*
+      *- Perpanjangan_penahanan*
+      *- Penetapan_diversi*`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "pelimpahan_biasa") {
+      let responseMessage = `Persyaratan pelimpahan berkas perkara pidana biasa adalah :
+      1. Surat Pengantar
+      2. Berkas Perkara Penyidik
+      3. Surat Dakwaan/Soft Copy Dakwaan 
+      4. Penetapan Penahanan
+      5. Barang Bukti beserta Surat Pelimpahan Barang Bukti dan  Soft Copy`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "pelimpahan_tipiring") {
+      let responseMessage = `Persyaratan pelimpahan berkas perkara pidana biasa adalah :
+      1. Surat Pengantar
+      2. Berkas Perkara Penyidik
+      3. Surat Dakwaan/Soft Copy Dakwaan 
+      4. Barang Bukti
+      5. Saat persidangan menghadirkan minimal satu orang saksi`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "perpanjangan_penahanan") {
+      let responseMessage = `Persyaratan permohonan perpanjangan penahanan adalah :
+      1. Surat Permohonan
+      2. Surat Perintah Penahanan
+      3. Berita Acara Penahanan 
+      4. Surat perpanjangan penahanan dari Kejaksaan`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "penetapan_diversi") {
+      let responseMessage = `Persyaratan permohonan penetapan diversi adalah :
+      1. Surat Permohonan
+      2. Laporan Polisis
+      3. Kesepakatan Diversi 
+      4. Berita Acara
+      5. Surat Perintah dimulainya penyidikan
+      6. Surat Perintah Penyidikan
+      7. Surat Tanda Terima
+      8. Resume `;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "sita_geledah") {
+      let responseMessage = `Persyaratan permohonan penetapan peyitaan/penggeledahan adalah :
+      1. Surat Pengantar
+      2.Surat Laporan Polisis
+      3. Surat Perintah Penyitaan/Penggeledahan 
+      4. Berita Acara Penyitaan atau Penggeledahan
+      5. Surat Perintah dimulainya penyidikan
+      6. Surat Perintah Penyidikan
+      7. Surat Tanda Penyitaan/Penggeledahan
+      8. Soft Copy BB`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "hukum") {
+      let responseMessage = `Silahkan ketik layanan hukum yang anda inginkan :
+      *- Badan_hukum*
+      *- Surat_kuasa*
+      *- Waarmeking*
+      *- Kuasa_insidentil*
+      *- Ijin_penelitian*
+      *- Mediator*
+      *- Surat_keterangan*
+      *- Legalisir*
+      *- Salinan_putusan*
+      *- Informasi*
+      *- Pengaduan*`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "badan_hukum") {
+      let responseMessage = `Persyaratan permohonan pendaftaran badan hukum adalah :
+      1. Asli dan fotokopi akta pendirian badan hukum
+      2. Fotokopi NPWP badan hukum
+      3. Fotokopi KTP Pengurus 
+      4. Materai Rp.10.000,-`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "surat_kuasa") {
+      let responseMessage = `Persyaratan  pendaftaran surat kuasa khusus adalah :
+      1. Asli dan salinan surat kuasa khusus
+      2. Fotokopi kartu advokat
+      3. Fotokopi berita acara sumpah advokat 
+      4. Fotokopi KTP,-
+      5. Materai Rp.10.000,-`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "waarmeking") {
+      let responseMessage = `Persyaratan  permohonan legalisasi akta dibawah tangan/waarmeking adalah : 
+      1. Surat permohonan 
+      2.Fotokopi masing-masing ahli waris 
+      3. Fotokopi Kartu Keluarga  
+      4. Fotokopi buku tabungan atau objek waarmeking 
+      5. Surat Keterangan Waris 
+      6. Fotocopy Akta/Surat keterangan Kematian  
+      7. Fotokopi akta kelahiran masing-masing ahli waris 
+      8. Materai Rp.10.000,-`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "kuasa_insidentil") {
+      let responseMessage = `Persyaratan  permohonan ijin kuasa insidentil adalah :
+      1. Surat permohonan
+      2. Surat Keterangan Kepala Desa
+      3. Fotocopy KTP pemberi kuasa
+      4. Fotokopi KTP penerima kuasa
+      5. Materai Rp.10.000,-`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "ijin_penelitian") {
+      let responseMessage = `Persyaratan  permohonan ijin penelitian adalah :
+      1. Surat permohonan
+      2. Fotocopy KTP
+      3. Surat pengantar universitas/instansi
+      4. Proposal`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "mediator") {
+      let responseMessage = `Persyaratan  permohonan penempatan dalam daftar mediator adalah :
+      1. Salinan sah sertifikat mediator
+      2. Salinan sah ijazah terakhi
+      3. Pas foto berwarna 4x6 latar merah
+      4. Daftar riwayat hidup (minimal memuat latar belakang pendidikan dan/atau pengalaman)`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "surat_keterangan") {
+      let responseMessage = `Persyaratan  permohonan surat keterangan dalam hal :
+1.Tidak pernah sebagai terpidana
+2.Tidak sedang dicabut hak pilihnya
+3.Dipidana karena kealpaan ringan atau alasan politik
+4.Tidak memiliki tanggungan utang secara perorangan dan/atau secara badan hukum yang menjadi tanggung jawabnya yang merugikan keuangan negara adalah : 
+1. Surat Permohona
+2. Fotokopi SKCK (dilegalisir
+3. Fotokopi KTP (Dilegalisir) .   
+4. Surat keterangan tidak pernah tersangkut perkara dan tidak pernah dicabut hak pilihnya dari Kantor Desa/Lurah .   
+5. Surat pernyataan tidak pernah terpidana dan tidak pernah dicabut hak pilihny 6. Foto berwarna 4x
+7. PNBP Rp. 10.000,-
+Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "legalisir") {
+      let responseMessage = `Persyaratan  untuk permohonan legalisir surat  adalah :
+      1. Surat Permohonan
+      2. Fotokopi KTP (Dilegalisir)
+      3. Asli surat yang dilegalisir`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "salinan_putusan") {
+      let responseMessage = `Persyaratan  untuk permohonan salinan putusan BHT  adalah :
+      1. Surat Permohonan
+      2. Fotokopi KTP
+      3. PNBP Rp 500,- dikalikan jml lembar dan PNBP Penyerahan sebesar Rp.10.000,-`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "informasi") {
+      let responseMessage = `Permohonan informasi pada Pengadilan Negeri Bangli dapat diperoleh melalui website resmi Pengadilan Negeri bangli di https://pn-bangli.go.id atau dengan datang langsung ke meja informasi Pengadilan Negeri Bangli`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "pengaduan") {
+      let responseMessage = `Masyarakat dapat melaporkan indikasi pelanggaran yang terjadi di lingkungan Pengadilan Negeri Bangli, namun bukan pengaduan terkait masalah perkara ke https://siwas.mahkamahagung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "perdata") {
+      let responseMessage = `Silahkan ketik layanan perdata yang anda inginkan :
+      *- Pengajuan_gugatan*
+      *- Pengajuan_permohonan*
+      *- Gugatan_sederhana*
+      *- Eksekusi*
+      *- Konsinyasi*`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "pengajuan_gugatan") {
+      let responseMessage = `Persyaratan  untuk pengajuan gugatan  adalah :
+      1. Surat gugatan
+      2. Surat kuasa apabila dikuasakan  .
+      3. KTP Kuasa (apabila dikuasakan Kuasa)
+      4. Berita Acara Sumpah Advokat (apabila dikuasakan Kuasa)
+      'Dan sekarang masyarakat dapat menggunakan ecourt untuk mendaftarkan perkara perdata di alamat https://ecourt.mahkamahagung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "pengajuan_permohonan") {
+      let responseMessage = `Persyaratan  untuk pengajuan permohonan  adalah :
+      1. Surat permohonan
+      2. Surat kuasa apabila dikuasakan
+      3. KTP Kuasa (apabila dikuasakan Kuasa)
+      3. Berita Acara Sumpah Advokat (apabila dikuasakan Kuasa)
+      Dan sekarang masyarakat dapat menggunakan ecourt untuk mendaftarkan perkara perdata di alamat https://ecourt.mahkamahagung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "gugatan_sederhana") {
+      let responseMessage = `Persyaratan  untuk pengajuan gugatan sederhana  adalah :
+      1. Surat gugatan
+      2. Bukti surat yang telah dilegalisir di kantor pos
+      Dan sekarang masyarakat dapat menggunakan ecourt untuk mendaftarkan perkara perdata di alamat https://ecourt.mahkamahagung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi") {
+      let responseMessage = `Silahkan ketik jenis eksekusi :
+      *- Eksekusi_putusan*
+      *- Eksekusi_akta_perdamaian*
+      *- Eksekusi_serta_merta*
+      *- Eksekusi_provisi*
+      *- Eksekusi_lanjutan*
+      *- Eksekusi_lelang*
+      *- Eksekusi_kep_umum*`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_putusan") {
+      let responseMessage = `Persyaratan  untuk pengajuan eksekusi terhadap putusan pengadilan  adalah :
+      1. Permohonan
+      2. Surat kuasa khusus apabila dikuasakan
+      3. FC salinan putusan
+      4. Relaas pemberitahuan putusan
+      5. Surat pernyataan yang menyatakan bahwa obyek eksekusi tidak terkait perkara lain
+      6. Surat-surat lainnya yang dipandang perlu`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_akta_perdamaian") {
+      let responseMessage = `Persyaratan  untuk pengajuan eksekusi terhadap akta perdamaian adalah : 
+      1. Permohonan
+      2. Surat kuasa khusus apabila dikuasakan
+      3. FC Akta perdamaian`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_serta_merta") {
+      let responseMessage = `Persyaratan  untuk pengajuan eksekusi terhadap putusan serta merta  adalah :
+      1. Permohonan
+      2. Surat kuasa khusus apabila dikuasakan
+      3. FC salinan putusan serta merta
+      4. Fotokopi akta otentik
+      5. Jaminan/uang yang disimpan di bank`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_provisi") {
+      let responseMessage = `Persyaratan  untuk pengajuan eksekusi terhadap putusan provisi  adalah :
+      1. Permohonan
+      2. Surat kuasa khusus apabila dikuasakan
+      3. FC salinan putusan provisi
+      4. Akta otentik
+      5. Jaminan pelaksanaan eksekusi provisi
+      6. Surat-surat lainnya yang dipandang perlu`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_lanjutan") {
+      let responseMessage = `Persyaratan  untuk pengajuan eksekusi lanjutan  adalah :
+      1. Permohonan
+      2. Surat kuasa khusus apabila dikuasakan
+      3. FC BA Eksekusi pertama`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_lelang") {
+      let responseMessage = `Persyaratan  untuk pengajuan eksekusi lelang adalah :
+      1. Permohonan
+      2. Surat kuasa khusus apabila dikuasakan
+      3. FC SHM (IMB bila ada)
+      4. Fotokopi sertifikat HT dan APHT
+      5. Fotokopi SKMHT
+      6. Fotokopi surat peringatan kepada debitur
+      7. Fotokopi pembukuan bank mengenai jml utang debitur
+      8. Fotokopi surat peringatan kepada debitur
+      9. Permohonan penunnjukan apraisal atau penilai publik atas aset
+      10. Surat-surat lainnya yang dipandang perlu`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eksekusi_kep_umum") {
+      let responseMessage = `Persyaratan  pengosongan tanah untuk kepentingan umum  adalah :
+      1. Permohonan
+      2. Surat penetapan konsinyasi
+      3. BA Konsinyasi
+      4. Dokumen obyek eksekusi
+      5. Surat pelepasa hak dari BPN
+      6. Surat-surat lainnya yang dipandang perlu`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "konsinyasi") {
+      let responseMessage = `Persyaratan pencairan konsinyasi  adalah :
+      1. Permohonan
+      2. Surat kuasa khusus
+      3. FC Salinan penetapan KPN tentang uang konsinyasi
+      4. Surat pengantar dari ketua pelaksana pengadaan tanah
+      5. Surat-surat lainnya yang dipandang perlu`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "ecourt") {
+      let responseMessage = `court Adalah layanan bagi Pengguna Terdaftar dan Pengguna Lain untuk Pendaftaran Perkara Secara Online, Mendapatkan Taksiran Panjar Biaya Perkara secara online, Pembayaran secara online, Pemanggilan yang dilakukan dengan saluran elektronik, dan Persidangan yang dilakukan secara Elektronik. Untuk memulai silahkan kunjungi https://ecourt.mahkamahagung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "eraterang") {
+      let responseMessage = `ERATERANG adalah layanan Permohonan Surat keterangan secara Elektronik yang dapat diakses oleh pemohon dimanapun ia berada (selama ada akses internet via HP/Gawai dan Komputer/PC). Untuk memulai silahkan kunjungi https://eraterang.badilum.mahkamahagung.go.id`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "survei") {
+      let responseMessage = `Untuk mengevaluasi kinerja pelayanan pada *Pengadilan Negeri *****, kami telah menyediakan sarana survei elektronik yang bisa Bapak/Ibu akses di  http://esurvey.badilum.mahkamahagung.go.id/index.php/pengadilan/******`;
+
+      resolve(responseMessage);
+    } else if (keyword[0] == "perkara") {
+      let responseMessage = `Untuk mendapatkan salinan putusan yang bukan salinan resmi (SK-KMA 1-144/KMA/SK/I/2011) silahkan ketikkan : 
+      *Putusan#nomor perkara*. _Contoh : Putusan#123/Pdt.G/2021/PN ..._ 
+      Untuk mengetahui rincian biaya perkara silahkan ketikkan : 
+      *Biaya#nomor perkara*. _Contoh : Biaya#123/Pdt.G/2021/PN ..._ 
+      Untuk mengetahui jadwal sidang silahkan ketikkan : 
+      *Jadwal_sidang#nomor perkara*. _Contoh : Jadwal_sidang#123/Pdt.G/2021/PN ..._ 
+      Untuk mengetahui informasi denda tilang silahkan ketikkan : 
+      *Tilang#nomor polisi*. _Contoh : Tilang#DK1234P (nomor polisi tanpa spasi)_`;
+
+      resolve(responseMessage);
     } else if (keyword[0] == "jadwal") {
+      if (keyword.length == 1) {
+        let responseMessage =
+          "Perintah salah silahkan ketik jadwal#nomor perkara";
+        resolve(responseMessage);
+        return;
+      }
       let query = `SELECT tanggal_sidang,agenda FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE nomor_perkara='${keyword[1]}'`;
       db.query(query, (err, result) => {
         if (err) {
@@ -48,12 +368,154 @@ const getData = (message) => {
           resolve(responseMessage);
         }
       });
+    } else if (keyword[0] == "tilang") {
+      if (keyword.length == 1) {
+        let responseMessage =
+          "Perintah salah silahkan ketik tilang#nomor polisi";
+        resolve(responseMessage);
+        return;
+      }
+      let query = `SELECT amar_putusan FROM perkara_putusan LEFT JOIN perkara_lalulintas ON perkara_putusan.perkara_id=perkara_lalulintas.perkara_id WHERE nomor_polisi='${keyword[1]}'`;
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let responseMessage;
+          if (result.length != 0) {
+            let dataAmar = result[0].amar_putusan.split("<br/>").join(" ");
+
+            responseMessage = dataAmar;
+          } else {
+            responseMessage = `Tidak ada data`;
+          }
+          resolve(responseMessage);
+        }
+      });
+    } else if (keyword[0] == "biaya") {
+      if (keyword.length == 1) {
+        let responseMessage =
+          "Perintah salah silahkan ketik biaya#nomor putusan";
+        resolve(responseMessage);
+        return;
+      }
+      let queryBiayaMasuk = `SELECT nomor_perkara,jumlah,uraian FROM perkara LEFT JOIN perkara_biaya ON perkara.perkara_id=perkara_biaya.perkara_id WHERE nomor_perkara='${keyword[1]}' AND jenis_transaksi=1`;
+      let queryBiayaKeluar = `SELECT nomor_perkara,jumlah,uraian FROM perkara LEFT JOIN perkara_biaya ON perkara.perkara_id=perkara_biaya.perkara_id WHERE nomor_perkara='${keyword[1]}' AND jenis_transaksi=-1`;
+
+      const dataBiaya = async () => {
+        const masuk = await biayaMasuk(queryBiayaMasuk);
+        const keluar = await biayaKeluar(queryBiayaKeluar);
+        let biayaAsli = `${masuk.detailBiaya} \n ${
+          keluar.detailBiaya
+        } \n *Sisa* : ${masuk.detailJumlah - keluar.detailJumlah}`;
+        // console.log(biayaAsli);
+        return biayaAsli;
+      };
+
+      resolve(dataBiaya());
+    } else if (keyword[0] == "putusan") {
+      if (keyword.length == 1) {
+        let responseMessage =
+          "Perintah salah silahkan ketik putusan#nomor perkara";
+        resolve(responseMessage);
+        return;
+      }
+      let query = `SELECT DISTINCT(nomor_perkara),tanggal_putusan,link_dirput FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN dirput_dokumen ON perkara.perkara_id=dirput_dokumen.perkara_id WHERE nomor_perkara='${keyword[1]}' AND link_dirput IS NOT NULL ORDER BY tanggal_putusan DESC`;
+
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let responseMessage;
+          if (result.length != 0) {
+            let linkPutusan = `No Perkara : ${
+              result[0].nomor_perkara
+            }, tanggal putusan : ${moment(result[0].tanggal_putusan).format(
+              "D-M-YYYY"
+            )}, link : ${result[0].link_dirput}`;
+
+            responseMessage = linkPutusan;
+          } else {
+            responseMessage = `Tidak ada data`;
+          }
+          resolve(responseMessage);
+        }
+      });
+    } else {
+      let responseMessage = `Silahkan ketik _Halo_ untuk memulai`;
+      resolve(responseMessage);
     }
   });
 };
 
-// getDataQuery("SELECT * FROM daftar_perkara_tbl WHERE id=43");
+// function biasa masuk
+const biayaMasuk = (query) => {
+  return new Promise((resolve, reject) => {
+    let detailBiaya;
+    let detailJumlah;
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (result.length != 0) {
+          let biayaRaw = [];
+          result.forEach((r) => {
+            biayaRaw.push({
+              uraian: `- Uraian : ${r.uraian}, Jumlah : ${r.jumlah}`,
+              jumlah: r.jumlah,
+            });
+          });
+          let detailUraian = biayaRaw.map((obj) => obj.uraian).join("\n");
+          detailJumlah = biayaRaw
+            .map((obj) => obj.jumlah)
+            .reduce((acc, current) => {
+              return acc + current;
+            });
+          detailBiaya = `*Biaya Masuk* : \n ${detailUraian} \n *Total Biaya Masuk* : ${detailJumlah}`;
+        } else {
+          detailBiaya = `Tidak ada data`;
+          detailJumlah = "";
+        }
+        resolve({ detailBiaya, detailJumlah });
+        console.log(detailBiaya, detailJumlah);
+      }
+    });
+  });
+};
 
-// const getData = (query) => {};
+// function biaya keluar
+
+const biayaKeluar = (query) => {
+  return new Promise((resolve, reject) => {
+    let detailBiaya;
+    let detailJumlah;
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (result.length != 0) {
+          let biayaRaw = [];
+          result.forEach((r) => {
+            biayaRaw.push({
+              uraian: `- Uraian : ${r.uraian}, Jumlah : ${r.jumlah}`,
+              jumlah: r.jumlah,
+            });
+          });
+          let detailUraian = biayaRaw.map((obj) => obj.uraian).join("\n");
+          detailJumlah = biayaRaw
+            .map((obj) => obj.jumlah)
+            .reduce((acc, current) => {
+              return acc + current;
+            });
+          detailBiaya = `*Biaya Keluar* : \n ${detailUraian} \n *Total Biaya Keluar* : ${detailJumlah}`;
+        } else {
+          detailBiaya = `Tidak ada data`;
+          detailJumlah = "";
+        }
+        resolve({ detailBiaya, detailJumlah });
+        console.log(detailBiaya, detailJumlah);
+      }
+    });
+  });
+};
 
 module.exports = getData;

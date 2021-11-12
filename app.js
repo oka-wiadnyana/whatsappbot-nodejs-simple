@@ -83,6 +83,7 @@ client.on("change_battery", (batteryInfo) => {
 });
 
 client.on("change_state", (state) => {
+  // Client state change
   console.log("CHANGE STATE", state);
 });
 
@@ -91,8 +92,4 @@ client.on("disconnected", (reason) => {
   if (reason == "NAVIGATION") {
     fs.unlinkSync("./session.json");
   }
-  // client.destroy();
-
-  // fs.unlinkSync("./session.json");
 });
-// client.initialize();
