@@ -2,6 +2,12 @@ const fs = require("fs");
 const { Client, Location, List, Buttons } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const getData = require("./query");
+const express = require("express");
+const app = express();
+const port = 3000;
+
+// use this code for post request
+app.use(express.urlencoded({ extended: true }));
 
 //cari session agar tidak scan qr
 const SESSION_FILE_PATH = "./session.json";
@@ -79,4 +85,49 @@ client.on("disconnected", (reason) => {
   if (reason == "NAVIGATION") {
     fs.unlinkSync("./session.json");
   }
+});
+
+// whatsapp api
+app.post("/send-message", (req, res) => {
+  let numberRaw = req.body.number;
+  let numberId = `62${numberRaw.substring(1, 20)}@c.us`;
+  let message = req.body.message;
+  client
+    .sendMessage(numberId, message)
+    .then((response) => {
+      res.status(200).json({
+        status: true,
+        response: response,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        status: false,
+        response: err,
+      });
+    });
+});
+
+app.get("/send-message/:number/:message", (req, res) => {
+  let numberRaw = req.params.number;
+  let numberId = `62${numberRaw.substring(1, 20)}@c.us`;
+  let message = req.params.message;
+  client
+    .sendMessage(numberId, message)
+    .then((response) => {
+      res.status(200).json({
+        status: true,
+        response: response,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        status: false,
+        response: err,
+      });
+    });
+});
+
+app.listen(port, () => {
+  console.log(`Whatsapp api listening at port ${port}`);
 });

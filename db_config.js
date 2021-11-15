@@ -2,8 +2,8 @@
 const mysql = require("mysql");
 const db = mysql.createConnection({
   // sesuaikan konfigurasi dengan server
-  host: "localhost",
-  user: "root",
+  host: "",
+  user: "",
   password: "",
   database: "",
 });
