@@ -1,5 +1,5 @@
 # whatsappbot-nodejs-simple
-Whatsapp bot ini dibuat dengan format pesan respon khusus untuk satker Pengadilan, namun tetap bisa dikustomisasi oleh pengguna lain sesuai kebutusan. Whatsapp bot ini dibuat dengan platform [whatsapp-web-js](https://github.com/pedroslopez/whatsapp-web.js/), dan dibuat menggunakan bahasa javascript dengan runtime environment node-js. Whatsapp bot ini juga dapat digunakan untuk api dan diintegrasikan yang anda buat.
+Whatsapp bot ini dibuat dengan format pesan respon khusus untuk satker Pengadilan, namun tetap bisa dikustomisasi oleh pengguna lain sesuai kebutusan. Whatsapp bot ini dibuat dengan platform [whatsapp-web-js](https://github.com/pedroslopez/whatsapp-web.js/), dan dibuat menggunakan bahasa javascript dengan runtime environment node-js. Whatsapp bot ini juga dapat digunakan untuk api dan diintegrasikan dengan project yang anda buat.
 
 Prerequisit :
 * Smartphone yang telah terinstall aplikasi whatsapp
