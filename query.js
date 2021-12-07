@@ -1,6 +1,8 @@
 // requiring dependencies
-const db = require("./db_config");
 const moment = require("moment");
+const axios = require("axios").default;
+const db = require("./db_config");
+
 //connect ke db
 db.connect((err) => {
   if (err) throw err;
@@ -23,7 +25,10 @@ _Untuk informasi berperkara secara elektronik pada *Pengadilan Negeri .....*_
 *- Pengaduan*
 _Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri .....*_
 *- Survei*
-_Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri .....*_`;
+_Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri .....*_
+*- Covid*
+_Untuk informasi Covid di Indonesia_
+`;
       resolve(responseMessage);
     } else if (keyword[0] == "layanan") {
       let responseMessage = `Silahkan balas pesan ini dengan mengetikkan layanan yang anda inginkan :
@@ -408,7 +413,7 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
           keluar.detailBiaya
         } \n *Sisa* : ${masuk.detailJumlah - keluar.detailJumlah}`;
         // console.log(biayaAsli);
-        return biayaAsli;
+        return biayaAsli.toLocaleString();
       };
 
       resolve(dataBiaya());
@@ -440,6 +445,114 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
           resolve(responseMessage);
         }
       });
+    } else if (keyword[0] == "covid") {
+      try {
+        axios.get("https://api.kawalcorona.com/indonesia").then((response) => {
+          let responseMessage = `Jumlah positif : *${response.data[0].positif}* \nJumlah sembuh : *${response.data[0].sembuh}* \nJumlah meninggal : *${response.data[0].meninggal}*`;
+
+          resolve(responseMessage);
+        });
+      } catch (error) {
+        let responseMessage = `Koneksi ke API error`;
+        resolve(responseMessage);
+      }
+    } else if (keyword[0] == "monev_bas") {
+      let query = `SELECT nomor_perkara,tanggal_sidang,agenda,panitera_nama FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE (alur_perkara_id=1 OR alur_perkara_id =2 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=118 OR alur_perkara_id=119 OR alur_perkara_id=120 OR alur_perkara_id=121) AND (YEAR(tanggal_sidang)=YEAR(NOW()) AND tanggal_sidang<=CURDATE()-1 AND edoc_bas IS NULL) ORDER BY tanggal_sidang DESC`;
+
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let responseMessage;
+          if (result.length != 0) {
+            let resultArray = [];
+            result.forEach((r) => {
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara}, tanggal sidang : ${r.tanggal_sidang}, agenda : ${r.agenda}, pp : ${r.panitera_nama}`
+              );
+            });
+            responseMessage = resultArray.join("\n");
+          } else {
+            responseMessage = `Tidak ada data`;
+          }
+          resolve(responseMessage);
+        }
+      });
+    } else if (keyword[0] == "monev_penahanan") {
+      let query = `SELECT
+      tanggal_akhir,
+      id,
+      nomor_perkara,
+      tanggal_putusan
+    FROM
+      (
+        SELECT
+          MAX(sampai) as tanggal_akhir,
+          penahanan_terdakwa.perkara_id as id
+        FROM
+          penahanan_terdakwa
+        GROUP BY
+          penahanan_terdakwa.perkara_id
+        ORDER BY
+          penahanan_terdakwa.perkara_id DESC
+      ) AS custom
+      LEFT JOIN perkara ON custom.id = perkara.perkara_id
+      LEFT JOIN perkara_putusan ON custom.id = perkara_putusan.perkara_id
+    WHERE
+      tanggal_akhir >= CURDATE()
+      AND tanggal_akhir <= CURDATE() + 10
+      AND tanggal_putusan IS NULL`;
+
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let responseMessage;
+          if (result.length != 0) {
+            let resultArray = [];
+            result.forEach((r) => {
+              resultArray.push(
+                `Nomor perkara : ${r.nomor_perkara}, 'Tanggal penahanan terakhir : ${r.tanggal_akhir}`
+              );
+            });
+            responseMessage = resultArray.join("\n");
+          } else {
+            responseMessage = `Tidak ada data`;
+          }
+          resolve(responseMessage);
+        }
+      });
+    } else if (keyword[0] == "dirput_hukum") {
+      let query = `SELECT DISTINCT(nomor_perkara),tanggal_putusan,link_dirput,dokumen_ref_id
+      FROM perkara
+      LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id
+      LEFT JOIN dirput_dokumen ON perkara.perkara_id=dirput_dokumen.perkara_id
+      WHERE (alur_perkara_id=1 OR alur_perkara_id =2 OR alur_perkara_id=8 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=118 OR alur_perkara_id=119 OR alur_perkara_id=120 OR alur_perkara_id=121) AND (tanggal_putusan IS NOT NULL AND link_dirput IS NULL AND (dokumen_ref_id BETWEEN 88 AND 100) AND YEAR(tanggal_putusan)= YEAR(CURDATE()))
+      ORDER BY tanggal_putusan DESC`;
+
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let responseMessage;
+          if (result.length != 0) {
+            let resultArray = [];
+            result.forEach((r) => {
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara}, tanggal putusan : ${moment(
+                  r.tanggal_putusan
+                ).format("D-M-YYYY")}, link : ${r.link_dirput}`
+              );
+            });
+            let link = resultArray.join("\n");
+            let jml = resultArray.length;
+            responseMessage = `Jumlah : ${jml} \n${link}`;
+          } else {
+            responseMessage = `Tidak ada data`;
+          }
+          resolve(responseMessage);
+        }
+      });
     } else {
       let responseMessage = `Silahkan ketik _Halo_ untuk memulai`;
       resolve(responseMessage);
@@ -460,7 +573,9 @@ const biayaMasuk = (query) => {
           let biayaRaw = [];
           result.forEach((r) => {
             biayaRaw.push({
-              uraian: `- Uraian : ${r.uraian}, Jumlah : ${r.jumlah}`,
+              uraian: `- Uraian : ${
+                r.uraian
+              }, Jumlah : ${r.jumlah.toLocaleString()}`,
               jumlah: r.jumlah,
             });
           });
@@ -470,13 +585,13 @@ const biayaMasuk = (query) => {
             .reduce((acc, current) => {
               return acc + current;
             });
-          detailBiaya = `*Biaya Masuk* : \n ${detailUraian} \n *Total Biaya Masuk* : ${detailJumlah}`;
+          detailBiaya = `*Biaya Masuk* : \n ${detailUraian} \n *Total Biaya Masuk* : ${detailJumlah.toLocaleString()}`;
         } else {
           detailBiaya = `Tidak ada data`;
           detailJumlah = "";
         }
         resolve({ detailBiaya, detailJumlah });
-        console.log(detailBiaya, detailJumlah);
+        // console.log(detailBiaya, detailJumlah);
       }
     });
   });
@@ -496,7 +611,9 @@ const biayaKeluar = (query) => {
           let biayaRaw = [];
           result.forEach((r) => {
             biayaRaw.push({
-              uraian: `- Uraian : ${r.uraian}, Jumlah : ${r.jumlah}`,
+              uraian: `- Uraian : ${
+                r.uraian
+              }, Jumlah : ${r.jumlah.toLocaleString()}`,
               jumlah: r.jumlah,
             });
           });
@@ -506,13 +623,13 @@ const biayaKeluar = (query) => {
             .reduce((acc, current) => {
               return acc + current;
             });
-          detailBiaya = `*Biaya Keluar* : \n ${detailUraian} \n *Total Biaya Keluar* : ${detailJumlah}`;
+          detailBiaya = `*Biaya Keluar* : \n ${detailUraian} \n *Total Biaya Keluar* : ${detailJumlah.toLocaleString()}`;
         } else {
           detailBiaya = `Tidak ada data`;
           detailJumlah = "";
         }
         resolve({ detailBiaya, detailJumlah });
-        console.log(detailBiaya, detailJumlah);
+        // console.log(detailBiaya, detailJumlah);
       }
     });
   });
