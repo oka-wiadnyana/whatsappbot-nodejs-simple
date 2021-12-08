@@ -15,17 +15,17 @@ const getData = (message) => {
   return new Promise((resolve, reject) => {
     // mulai logic pesan
     if (keyword[0] == "halo") {
-      let responseMessage = `Halo sobat *PN ......*. Sekarang kami menyediakan beberapa informasi yang bisa Bapak/Ibu akses. Silahkan balas pesan ini dengan mengetik
+      let responseMessage = `Halo sobat *PN Bangli*. Sekarang kami menyediakan beberapa informasi yang bisa Bapak/Ibu akses. Silahkan balas pesan ini dengan mengetik
 *- Perkara*
-_Untuk salinan putusan (bukan salinan resmi), detail biaya perkara, informasi jadwal sidang dan tilang pada *Pengadilan Negeri .....*_
+_Untuk salinan putusan (bukan salinan resmi), detail biaya perkara, informasi jadwal sidang dan tilang pada *Pengadilan Negeri Bangli*_
 *- Layanan*
-_Untuk informasi Pelayanan Terpadu Satu Pintu pada *Pengadilan Negeri .....*_
+_Untuk informasi Pelayanan Terpadu Satu Pintu pada *Pengadilan Negeri Bangli*_
 *- Ecourt*
-_Untuk informasi berperkara secara elektronik pada *Pengadilan Negeri .....*_
+_Untuk informasi berperkara secara elektronik pada *Pengadilan Negeri Bangli*_
 *- Pengaduan*
-_Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri .....*_
+_Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri Bangli*_
 *- Survei*
-_Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri .....*_
+_Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri Bangli*_
 *- Covid*
 _Untuk informasi Covid di Indonesia_
 `;
@@ -336,11 +336,11 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
       resolve(responseMessage);
     } else if (keyword[0] == "perkara") {
       let responseMessage = `Untuk mendapatkan salinan putusan yang bukan salinan resmi (SK-KMA 1-144/KMA/SK/I/2011) silahkan ketikkan : 
-      *Putusan#nomor perkara*. _Contoh : Putusan#123/Pdt.G/2021/PN ..._ 
+      *Putusan#nomor perkara*. _Contoh : Putusan#123/Pdt.G/2021/PN Bli_ 
       Untuk mengetahui rincian biaya perkara silahkan ketikkan : 
-      *Biaya#nomor perkara*. _Contoh : Biaya#123/Pdt.G/2021/PN ..._ 
+      *Biaya#nomor perkara*. _Contoh : Biaya#123/Pdt.G/2021/PN Bli_ 
       Untuk mengetahui jadwal sidang silahkan ketikkan : 
-      *Jadwal_sidang#nomor perkara*. _Contoh : Jadwal_sidang#123/Pdt.G/2021/PN ..._ 
+      *Jadwal_sidang#nomor perkara*. _Contoh : Jadwal_sidang#123/Pdt.G/2021/PN Bli_ 
       Untuk mengetahui informasi denda tilang silahkan ketikkan : 
       *Tilang#nomor polisi*. _Contoh : Tilang#DK1234P (nomor polisi tanpa spasi)_`;
 
@@ -468,7 +468,11 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
             let resultArray = [];
             result.forEach((r) => {
               resultArray.push(
-                `No Perkara : ${r.nomor_perkara}, tanggal sidang : ${r.tanggal_sidang}, agenda : ${r.agenda}, pp : ${r.panitera_nama}`
+                `No Perkara : ${r.nomor_perkara}, tanggal sidang : ${moment(
+                  r.tanggal_sidang
+                ).format("D-M-YYYY")}, agenda : ${r.agenda}, pp : ${
+                  r.panitera_nama
+                }`
               );
             });
             responseMessage = resultArray.join("\n");
@@ -512,7 +516,11 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
             let resultArray = [];
             result.forEach((r) => {
               resultArray.push(
-                `Nomor perkara : ${r.nomor_perkara}, 'Tanggal penahanan terakhir : ${r.tanggal_akhir}`
+                `Nomor perkara : ${
+                  r.nomor_perkara
+                }, 'Tanggal penahanan terakhir : ${moment(
+                  r.tanggal_akhir
+                ).format("D-M-YYYY")}`
               );
             });
             responseMessage = resultArray.join("\n");

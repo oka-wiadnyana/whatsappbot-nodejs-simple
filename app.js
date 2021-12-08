@@ -2,7 +2,9 @@ const fs = require("fs");
 const { Client, Location, List, Buttons } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const figlet = require("figlet");
+const cron = require("node-cron");
 const getData = require("./query");
+const groupNotif = require("./group-notif");
 const express = require("express");
 const app = express();
 const port = 3000;
@@ -68,19 +70,38 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-client.on("ready", () => {
+client.on("ready", async () => {
   //saat wa sudah siap
+  let promisePenahanan = groupNotif.getDataPenahanan();
+  let messagePenahanan = await promisePenahanan;
+  let promiseBA = groupNotif.getDataBA();
+  let messageBA = await promiseBA;
+
+  // dataPenahanan().then((res) => {
+  //   cron.schedule("*/1 * * * *", () => {
+  //     client.sendMessage("6281337320205@c.us", res);
+  //   });
+  // });
+  cron.schedule("0 8 * * *", () => {
+    client.sendMessage(
+      "120363021004523753@g.us",
+      `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n*Data perkara yang belum upload BA* : ${messageBA}`
+    );
+  });
+
   console.log("READY");
 });
 
-client.on("message", (msg) => {
+client.on("message", async (msg) => {
   // Pesan masuk dan keluar
+  let chat = await msg.getChat();
   let message = msg.body.toLocaleLowerCase();
   let id = msg.from;
   console.log(`Checking message from ${id}`);
-  getData(message).then((res) => {
-    msg.reply(res);
-  });
+  if (chat.isGroup === false)
+    getData(message).then((res) => {
+      msg.reply(res);
+    });
 });
 
 client.on("change_battery", (batteryInfo) => {
