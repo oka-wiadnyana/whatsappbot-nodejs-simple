@@ -1,10 +1,21 @@
 const fs = require("fs");
 const { Client, Location, List, Buttons } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
+const figlet = require("figlet");
 const getData = require("./query");
 const express = require("express");
 const app = express();
 const port = 3000;
+
+// console log bot name
+figlet("OKABOT", function (err, data) {
+  if (err) {
+    console.log("Something went wrong...");
+    console.dir(err);
+    return;
+  }
+  console.log(data);
+});
 
 // use this code for post request
 app.use(express.urlencoded({ extended: true }));
@@ -36,13 +47,14 @@ client.initialize();
 
 client.on("qr", (qr) => {
   // NOTE: This event will not be fired if a session is specified.
-  console.log("QR RECEIVED", qr);
+  // console.log("QR RECEIVED", qr);
   qrcode.generate(qr, { small: true });
 });
 
 client.on("authenticated", (session) => {
   //saat diotentifikasi
-  console.log("AUTHENTICATED", session);
+  // console.log("AUTHENTICATED", session);
+  console.log("AUTHENTICATED");
   sessionCfg = session;
   fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
     if (err) {
@@ -64,6 +76,8 @@ client.on("ready", () => {
 client.on("message", (msg) => {
   // Pesan masuk dan keluar
   let message = msg.body.toLocaleLowerCase();
+  let id = msg.from;
+  console.log(`Checking message from ${id}`);
   getData(message).then((res) => {
     msg.reply(res);
   });
@@ -130,5 +144,5 @@ app.get("/send-message/:number/:message", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Whatsapp api listening at port ${port}`);
+  console.log(`OKABOT listening at port ${port}`);
 });
