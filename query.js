@@ -3,11 +3,8 @@ const moment = require("moment");
 const axios = require("axios").default;
 const db = require("./db_config");
 
-//connect ke db
-db.connect((err) => {
-  if (err) throw err;
-  console.log("Connected");
-});
+//pool on connect
+db.on("connection", (connection) => console.log(" CONNECTION USING POOL"));
 
 // inisiasi pesan masuk
 const getData = (message) => {

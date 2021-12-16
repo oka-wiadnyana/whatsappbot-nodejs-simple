@@ -72,22 +72,26 @@ client.on("auth_failure", (msg) => {
 
 client.on("ready", async () => {
   //saat wa sudah siap
-  let promisePenahanan = groupNotif.getDataPenahanan();
-  let messagePenahanan = await promisePenahanan;
-  let promiseBA = groupNotif.getDataBA();
-  let messageBA = await promiseBA;
+  try {
+    let promisePenahanan = groupNotif.getDataPenahanan();
+    let messagePenahanan = await promisePenahanan;
+    let promiseBA = groupNotif.getDataBA();
+    let messageBA = await promiseBA;
 
-  // dataPenahanan().then((res) => {
-  //   cron.schedule("*/1 * * * *", () => {
-  //     client.sendMessage("6281337320205@c.us", res);
-  //   });
-  // });
-  cron.schedule("0 8 * * *", () => {
-    client.sendMessage(
-      "120363021004523753@g.us",
-      `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n*Data perkara yang belum upload BA* : ${messageBA}`
-    );
-  });
+    // dataPenahanan().then((res) => {
+    //   cron.schedule("*/1 * * * *", () => {
+    //     client.sendMessage("6281337320205@c.us", res);
+    //   });
+    // });
+    cron.schedule("0 8 * * *", () => {
+      client.sendMessage(
+        "120363021004523753@g.us",
+        `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n*Data perkara yang belum upload BA* : ${messageBA}`
+      );
+    });
+  } catch (error) {
+    console.log(error);
+  }
 
   console.log("READY");
 });
