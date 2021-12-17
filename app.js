@@ -97,6 +97,12 @@ client.on("ready", async () => {
     let messageJadwalSidangPerdata = await promiseJadwalSidangPerdata;
     let promiseJadwalMediasi = groupNotif.getDataJadwalMediasi();
     let messageJadwalMediasi = await promiseJadwalMediasi;
+    let promiseSisaPanjarPn = groupNotif.getDataSisaPanjarPn();
+    let messageSisaPanjarPn = await promiseSisaPanjarPn;
+    let promiseSisaPanjarBanding = groupNotif.getDataSisaPanjarBanding();
+    let messageSisaPanjarBanding = await promiseSisaPanjarBanding;
+    let promiseSisaPanjarKasasi = groupNotif.getDataSisaPanjarKasasi();
+    let messageSisaPanjarKasasi = await promiseSisaPanjarKasasi;
 
     // dataPenahanan().then((res) => {
     //   cron.schedule("*/1 * * * *", () => {
@@ -106,7 +112,7 @@ client.on("ready", async () => {
     cron.schedule("0 8 * * *", () => {
       client.sendMessage(
         "120363021004523753@g.us",
-        `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n*Data perkara yang belum dilakukan penundaan* : \n${messageTundaJadwalSidang} \n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n*Data perkara yang belum upload BA* : \n${messageBA} \n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum}`
+        `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n*Data perkara yang belum dilakukan penundaan* : \n${messageTundaJadwalSidang} \n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n*Data perkara yang belum upload BA* : \n${messageBA} \n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum}`
       );
     });
   } catch (error) {

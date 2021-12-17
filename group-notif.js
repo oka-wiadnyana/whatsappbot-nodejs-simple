@@ -365,7 +365,91 @@ const getDataJadwalMediasi = () => {
   });
 };
 
-// getDataJadwalMediasi().then((res) => console.log(res));
+const getDataSisaPanjarPn = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, tanggal_putusan, sisa FROM v_perkara_biaya LEFT JOIN perkara_putusan ON v_perkara_biaya.perkara_id=perkara_putusan.perkara_id WHERE tahapan_terakhir_id=15 AND (alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8) AND sisa > 0 ORDER BY v_perkara_biaya.perkara_id DESC`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${r.nomor_perkara}, tanggal putusan : ${moment(
+                r.tanggal_putusan
+              ).format("D-M-YYYY")}, sisa panjar : ${r.sisa.toLocaleString()}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getDataSisaPanjarBanding = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, putusan_banding, sisa FROM v_perkara_biaya_banding LEFT JOIN perkara_banding ON v_perkara_biaya_banding.perkara_id=perkara_banding.perkara_id WHERE proses_terakhir_id=400 AND (v_perkara_biaya_banding.alur_perkara_id = 1 OR v_perkara_biaya_banding.alur_perkara_id = 2 OR v_perkara_biaya_banding.alur_perkara_id = 8) AND sisa > 0 ORDER BY v_perkara_biaya_banding.perkara_id DESC`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${r.nomor_perkara}, tanggal putusan : ${moment(
+                r.putusan_banding
+              ).format("D-M-YYYY")}, sisa panjar : ${r.sisa.toLocaleString()}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getDataSisaPanjarKasasi = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, putusan_kasasi, sisa FROM v_perkara_biaya_kasasi LEFT JOIN perkara_kasasi ON v_perkara_biaya_kasasi.perkara_id=perkara_kasasi.perkara_id WHERE proses_terakhir_id=500 AND (v_perkara_biaya_kasasi.alur_perkara_id = 1 OR v_perkara_biaya_kasasi.alur_perkara_id = 2 OR v_perkara_biaya_kasasi.alur_perkara_id = 8) AND sisa > 0 ORDER BY v_perkara_biaya_kasasi.perkara_id DESC`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${r.nomor_perkara}, tanggal putusan : ${moment(
+                r.putusan_kasasi
+              ).format("D-M-YYYY")}, sisa panjar : ${r.sisa.toLocaleString()}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+// getDataSisaPanjarKasasi().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -379,4 +463,7 @@ module.exports = {
   getDataJadwalSidangPidana,
   getDataJadwalSidangPerdata,
   getDataJadwalMediasi,
+  getDataSisaPanjarPn,
+  getDataSisaPanjarBanding,
+  getDataSisaPanjarKasasi,
 };
