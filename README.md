@@ -21,6 +21,18 @@ Langkah-langkah penggunaan :
  Untuk mengkostumisasi pesan respon, silahkan ubah di file **query.js**, dan untuk merubah koneksi ke database silahkan ubah pada file **db_config.js**.
  **Penting : Sangat disarankan untuk menggunakan _clone_ Database SIPP**
 
+ ### Notifikasi ke Group Whatsapp
+ Bot ini juga menyediakan fitur notifikasi group. Untuk menggunakannya, silahkan tambahkan kontak bot ke grup whatsapp, selanjutnya perhatikan id group whatsapp pada terminal (didapatkan setelah ada pesan masuk di grup). ID grup berakhiran dengan ...@g.us. Silahkan replace pada file app.js baris ke 114. Notifikasi yang dikirimkan antara lain :
+
+ * Data penahanan yang akan habis dalam 10 hari
+ * Putusan yang belum diminutasi
+ * Putusan yang belum diberitahukan
+ * BA yang belum diupload, dll
+
+Default jadwal notifikasi adalah pukul 08.00 Pagi setiap hari, untuk merubahnya, silahkan ganti pada bari ke 112
+
+### API
+
  Untuk menggunakan api silahkan hit ke : http://domainanda.com:port/send-message/nomor_tujuan(format 081xxxx)/pesan_anda (_versi beta, karena baru dites pada localhost_)
 
    Feel free to contact me :
