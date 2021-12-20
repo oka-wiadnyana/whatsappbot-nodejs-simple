@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const db = require("./db_config");
 
 //pool on connect
-db.on("connection", (connection) => console.log(" CONNECTION USING POOL"));
+db.on("connection", (connection) => console.log("CONNECTION USING POOL"));
 
 // inisiasi pesan masuk
 const getData = (message) => {
@@ -23,6 +23,8 @@ _Untuk informasi berperkara secara elektronik pada *Pengadilan Negeri Bangli*_
 _Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri Bangli*_
 *- Survei*
 _Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri Bangli*_
+*- Sidang hari ini*
+_Untuk informasi jadwal sidang pada hari yang bersangkutan_
 *- Covid*
 _Untuk informasi Covid di Indonesia_
 `;
