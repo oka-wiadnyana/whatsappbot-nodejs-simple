@@ -449,7 +449,7 @@ const getDataSisaPanjarKasasi = () => {
   });
 };
 
-// getDataSisaPanjarKasasi().then((res) => console.log(res));
+// getDataPenahanan().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,

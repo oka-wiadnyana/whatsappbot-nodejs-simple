@@ -558,6 +558,14 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
           resolve(responseMessage);
         }
       });
+    } else if (keyword[0] == "sidang hari ini") {
+      let promiseSidangPidana = getJadwalSidangPidana();
+      let messageSidangPidana = await promiseSidangPidana;
+      let promiseSidangPerdata = getJadwalSidangPerdata();
+      let messageSidangPerdata = await promiseSidangPerdata;
+
+      let responseMessage = `*Jadwal Sidang Pidana hari ini : * \n${messageSidangPidana} \nJadwal Sidang Perdata hari ini : ${messageSidangPerdata}`;
+      resolve(responseMessage);
     } else {
       let responseMessage = `Silahkan ketik _Halo_ untuk memulai`;
       resolve(responseMessage);
@@ -640,4 +648,98 @@ const biayaKeluar = (query) => {
   });
 };
 
+const breakPihak = (alurPerkara, jenisPerkara, pihakNama) => {
+  let pihakSplit = pihakNama.split("<br />");
+  let pihakPerkara;
+
+  if (jenisPerkara === "Perceraian" || alurPerkara === 118) {
+    pihakPerkara = "Disamarkan";
+  } else {
+    if (pihakSplit.length > 1) {
+      pihakPerkara = `${pihakSplit[0].substring(2)}, dkk`;
+    } else {
+      pihakPerkara = pihakSplit[0];
+    }
+  }
+
+  return pihakPerkara;
+};
+
+const getJadwalSidangPerdata = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, pihak1_text, pihak2_text, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8)`;
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            if (r.pihak2_text === "") {
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara}, Pemohon : ${breakPihak(
+                  r.alur_perkara_id,
+                  r.jenis_perkara_nama,
+                  r.pihak1_text
+                )}`
+              );
+            } else {
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara}, Penggugat : ${breakPihak(
+                  r.alur_perkara_id,
+                  r.jenis_perkara_nama,
+                  r.pihak1_text
+                )}, Tergugat : ${breakPihak(
+                  r.alur_perkara_id,
+                  r.jenis_perkara_nama,
+                  r.pihak2_text
+                )}`
+              );
+            }
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getJadwalSidangPidana = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, pihak1_text, pihak2_text, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id = 111 OR alur_perkara_id = 112 OR alur_perkara_id = 118)`;
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${r.nomor_perkara}, PU : ${breakPihak(
+                r.alur_perkara_id,
+                r.jenis_perkara_nama,
+                r.pihak1_text
+              )}, Terdakwa : ${breakPihak(
+                r.alur_perkara_id,
+                r.jenis_perkara_nama,
+                r.pihak2_text
+              )}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+// getJadwalSidangPidana().then((res) => console.log(res));
 module.exports = getData;
