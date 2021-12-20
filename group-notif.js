@@ -24,7 +24,7 @@ const getDataPenahanan = () => {
         LEFT JOIN perkara_putusan ON custom.id = perkara_putusan.perkara_id
       WHERE
         tanggal_akhir >= CURDATE()
-        AND tanggal_akhir <= CURDATE() + 10
+        AND tanggal_akhir <= DATE_ADD(CURDATE(),INTERVAL 10 DAY)
         AND tanggal_putusan IS NULL`;
 
     db.query(query, (err, result) => {
@@ -449,21 +449,21 @@ const getDataSisaPanjarKasasi = () => {
   });
 };
 
-getDataBelumSerahHukum().then((res) => console.log(res));
-// module.exports = {
-//   getDataPenahanan,
-//   getDataBA,
-//   getDataPutusanBelumMinut,
-//   getDataBelumBhtPidana,
-//   getDataBelumBhtPerdata,
-//   getDataBelumSerahHukum,
-//   getDataTundaJadwalSidang,
-//   getDataSaksiTidakLengkap,
-//   getDataPutusanBelumBeritahu,
-//   getDataJadwalSidangPidana,
-//   getDataJadwalSidangPerdata,
-//   getDataJadwalMediasi,
-//   getDataSisaPanjarPn,
-//   getDataSisaPanjarBanding,
-//   getDataSisaPanjarKasasi,
-// };
+// getDataPenahanan().then((res) => console.log(res));
+module.exports = {
+  getDataPenahanan,
+  getDataBA,
+  getDataPutusanBelumMinut,
+  getDataBelumBhtPidana,
+  getDataBelumBhtPerdata,
+  getDataBelumSerahHukum,
+  getDataTundaJadwalSidang,
+  getDataSaksiTidakLengkap,
+  getDataPutusanBelumBeritahu,
+  getDataJadwalSidangPidana,
+  getDataJadwalSidangPerdata,
+  getDataJadwalMediasi,
+  getDataSisaPanjarPn,
+  getDataSisaPanjarBanding,
+  getDataSisaPanjarKasasi,
+};
