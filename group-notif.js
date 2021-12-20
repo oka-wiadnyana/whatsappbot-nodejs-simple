@@ -173,7 +173,7 @@ const getDataBelumBhtPerdata = () => {
 
 const getDataBelumSerahHukum = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT id, perkara.nomor_perkara, tanggal_putusan, tanggal_bht FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN arsip ON perkara.perkara_id=arsip.perkara_id WHERE id IS NULL AND tanggal_bht IS NOT NULL AND YEAR(tanggal_bht) >=2019 ORDER BY tanggal_bht DESC`;
+    let query = `SELECT id, perkara.nomor_perkara, tanggal_putusan, tanggal_minutasi, tanggal_bht FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN arsip ON perkara.perkara_id=arsip.perkara_id WHERE id IS NULL AND tanggal_bht IS NOT NULL AND YEAR(tanggal_bht) >=2019 ORDER BY tanggal_bht DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -449,21 +449,21 @@ const getDataSisaPanjarKasasi = () => {
   });
 };
 
-// getDataPenahanan().then((res) => console.log(res));
-module.exports = {
-  getDataPenahanan,
-  getDataBA,
-  getDataPutusanBelumMinut,
-  getDataBelumBhtPidana,
-  getDataBelumBhtPerdata,
-  getDataBelumSerahHukum,
-  getDataTundaJadwalSidang,
-  getDataSaksiTidakLengkap,
-  getDataPutusanBelumBeritahu,
-  getDataJadwalSidangPidana,
-  getDataJadwalSidangPerdata,
-  getDataJadwalMediasi,
-  getDataSisaPanjarPn,
-  getDataSisaPanjarBanding,
-  getDataSisaPanjarKasasi,
-};
+getDataBelumSerahHukum().then((res) => console.log(res));
+// module.exports = {
+//   getDataPenahanan,
+//   getDataBA,
+//   getDataPutusanBelumMinut,
+//   getDataBelumBhtPidana,
+//   getDataBelumBhtPerdata,
+//   getDataBelumSerahHukum,
+//   getDataTundaJadwalSidang,
+//   getDataSaksiTidakLengkap,
+//   getDataPutusanBelumBeritahu,
+//   getDataJadwalSidangPidana,
+//   getDataJadwalSidangPerdata,
+//   getDataJadwalMediasi,
+//   getDataSisaPanjarPn,
+//   getDataSisaPanjarBanding,
+//   getDataSisaPanjarKasasi,
+// };

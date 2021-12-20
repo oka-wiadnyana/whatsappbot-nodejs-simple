@@ -25,6 +25,8 @@ _Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri Bangli*_
 _Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri Bangli*_
 *- Sidang hari ini*
 _Untuk informasi jadwal sidang pada hari yang bersangkutan_
+*- Sidang tanggal*
+_Untuk informasi jadwal sidang pada tanggal tertentu (contoh : sidang tanggal#20-12-2021)_
 *- Covid*
 _Untuk informasi Covid di Indonesia_
 `;
@@ -572,6 +574,25 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
 
       let responseMessage = message();
       resolve(responseMessage);
+    } else if (keyword[0] == "sidang tanggal") {
+      if (keyword.length == 1) {
+        let responseMessage =
+          "Perintah salah silahkan ketik putusan#nomor perkara";
+        resolve(responseMessage);
+        return;
+      }
+      let tanggal = keyword[1];
+      const message = async () => {
+        let promiseSidangPidana = getJadwalSidangPidana(tanggal);
+        let messageSidangPidana = await promiseSidangPidana;
+        let promiseSidangPerdata = getJadwalSidangPerdata(tanggal);
+        let messageSidangPerdata = await promiseSidangPerdata;
+        let msg = `*Jadwal Sidang Pidana tanggal ${tanggal} :* \n${messageSidangPidana} \n\n*Jadwal Sidang Perdata  tanggal ${tanggal} :* \n${messageSidangPerdata}`;
+        return msg;
+      };
+
+      let responseMessage = message();
+      resolve(responseMessage);
     } else {
       let responseMessage = `Silahkan ketik _Halo_ untuk memulai`;
       resolve(responseMessage);
@@ -671,9 +692,18 @@ const breakPihak = (alurPerkara, jenisPerkara, pihakNama) => {
   return pihakPerkara;
 };
 
-const getJadwalSidangPerdata = () => {
+const getJadwalSidangPerdata = (tanggal = null) => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, pihak1_text, pihak2_text, agenda, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8)`;
+    let query;
+    if (tanggal == null) {
+      query = `SELECT nomor_perkara, pihak1_text, pihak2_text, agenda, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8)`;
+    } else {
+      let splitTanggal = tanggal.split("-");
+      let tanggalReformat = `${splitTanggal[2]}-${splitTanggal[1]}-${splitTanggal[0]}`;
+
+      query = `SELECT nomor_perkara, pihak1_text, pihak2_text, agenda, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = '${tanggalReformat}' AND (alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8)`;
+    }
+
     db.query(query, (err, result) => {
       if (err) {
         reject(err);
@@ -718,9 +748,17 @@ const getJadwalSidangPerdata = () => {
   });
 };
 
-const getJadwalSidangPidana = () => {
+const getJadwalSidangPidana = (tanggal = null) => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, pihak1_text, pihak2_text, agenda, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id = 111 OR alur_perkara_id = 112 OR alur_perkara_id = 118)`;
+    let query;
+    if (tanggal == null) {
+      query = `SELECT nomor_perkara, pihak1_text, pihak2_text, agenda, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id = 111 OR alur_perkara_id = 112 OR alur_perkara_id = 118)`;
+    } else {
+      let splitTanggal = tanggal.split("-");
+      let tanggalReformat = `${splitTanggal[2]}-${splitTanggal[1]}-${splitTanggal[0]}`;
+
+      query = `SELECT nomor_perkara, pihak1_text, pihak2_text, agenda, jenis_perkara_nama, alur_perkara_id FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id WHERE tanggal_sidang = '${tanggalReformat}' AND (alur_perkara_id = 111 OR alur_perkara_id = 112 OR alur_perkara_id = 118)`;
+    }
     db.query(query, (err, result) => {
       if (err) {
         reject(err);
@@ -753,5 +791,5 @@ const getJadwalSidangPidana = () => {
   });
 };
 
-// getJadwalSidangPidana().then((res) => console.log(res));
+// getJadwalSidangPerdata().then((res) => console.log(res));
 module.exports = getData;
