@@ -9,20 +9,22 @@ db.on("connection", (connection) => console.log("CONNECTION USING POOL"));
 // inisiasi pesan masuk
 const getData = (message) => {
   let keyword = message.split("#");
+  let pengadilan = "Pengadilan Negeri Bangli";
+  let web = "https://pn-bangli.go.id";
   return new Promise((resolve, reject) => {
     // mulai logic pesan
     if (keyword[0] == "halo") {
-      let responseMessage = `Halo sobat *PN Bangli*. Sekarang kami menyediakan beberapa informasi yang bisa Bapak/Ibu akses. Silahkan balas pesan ini dengan mengetik
+      let responseMessage = `Halo sobat *${pengadilan}*. Sekarang kami menyediakan beberapa informasi yang bisa Bapak/Ibu akses. Silahkan balas pesan ini dengan mengetik
 *- Perkara*
-_Untuk salinan putusan (bukan salinan resmi), detail biaya perkara, informasi jadwal sidang dan tilang pada *Pengadilan Negeri Bangli*_
+_Untuk salinan putusan (bukan salinan resmi), detail biaya perkara, informasi jadwal sidang dan tilang pada *${pengadilan}*_
 *- Layanan*
-_Untuk informasi Pelayanan Terpadu Satu Pintu pada *Pengadilan Negeri Bangli*_
+_Untuk informasi Pelayanan Terpadu Satu Pintu pada *${pengadilan}*_
 *- Ecourt*
-_Untuk informasi berperkara secara elektronik pada *Pengadilan Negeri Bangli*_
+_Untuk informasi berperkara secara elektronik pada *${pengadilan}*_
 *- Pengaduan*
-_Untuk informasi mengenai tata cara pengaduan pada *Pengadilan Negeri Bangli*_
+_Untuk informasi mengenai tata cara pengaduan pada *${pengadilan}*_
 *- Survei*
-_Untuk informasi mengenai survei elektronik pada *Pengadilan Negeri Bangli*_
+_Untuk informasi mengenai survei elektronik pada *${pengadilan}*_
 *- Sidang hari ini*
 _Untuk informasi jadwal sidang pada hari yang bersangkutan_
 *- Sidang tanggal*
@@ -195,11 +197,11 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
 
       resolve(responseMessage);
     } else if (keyword[0] == "informasi") {
-      let responseMessage = `Permohonan informasi pada Pengadilan Negeri Bangli dapat diperoleh melalui website resmi Pengadilan Negeri bangli di https://pn-bangli.go.id atau dengan datang langsung ke meja informasi Pengadilan Negeri Bangli`;
+      let responseMessage = `Permohonan informasi pada ${pengadilan} dapat diperoleh melalui website resmi ${pengadilan} di ${web} atau dengan datang langsung ke meja informasi ${pengadilan}`;
 
       resolve(responseMessage);
     } else if (keyword[0] == "pengaduan") {
-      let responseMessage = `Masyarakat dapat melaporkan indikasi pelanggaran yang terjadi di lingkungan Pengadilan Negeri Bangli, namun bukan pengaduan terkait masalah perkara ke https://siwas.mahkamahagung.go.id`;
+      let responseMessage = `Masyarakat dapat melaporkan indikasi pelanggaran yang terjadi di lingkungan ${pengadilan}, namun bukan pengaduan terkait masalah perkara ke https://siwas.mahkamahagung.go.id`;
 
       resolve(responseMessage);
     } else if (keyword[0] == "perdata") {
