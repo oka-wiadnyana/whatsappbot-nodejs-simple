@@ -29,6 +29,8 @@ _Untuk informasi mengenai survei elektronik pada *${pengadilan}*_
 _Untuk informasi jadwal sidang pada hari yang bersangkutan_
 *- Sidang tanggal*
 _Untuk informasi jadwal sidang pada tanggal tertentu (contoh : sidang tanggal#20-12-2021)_
+*- Statistik*
+_Untuk informasi statistik perkara pada ${pengadilan} (contoh : statistik#2021)_
 *- Covid*
 _Untuk informasi Covid di Indonesia_
 `;
@@ -579,7 +581,7 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
     } else if (keyword[0] == "sidang tanggal") {
       if (keyword.length == 1) {
         let responseMessage =
-          "Perintah salah silahkan ketik putusan#nomor perkara";
+          "Perintah salah silahkan ketik sidang tanggal#tanggal, contoh sidang tanggal#20-12-2021";
         resolve(responseMessage);
         return;
       }
@@ -591,6 +593,22 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
         let messageSidangPerdata = await promiseSidangPerdata;
         let msg = `*Jadwal Sidang Pidana tanggal ${tanggal} :* \n${messageSidangPidana} \n\n*Jadwal Sidang Perdata  tanggal ${tanggal} :* \n${messageSidangPerdata}`;
         return msg;
+      };
+
+      let responseMessage = message();
+      resolve(responseMessage);
+    } else if (keyword[0] == "statistik") {
+      if (keyword.length == 1) {
+        let responseMessage =
+          "Perintah salah silahkan ketik statistisk#tahun, contoh: statistik#2021";
+        resolve(responseMessage);
+        return;
+      }
+      let year = keyword[1];
+      const message = async () => {
+        let promiseStatistik = getStatistik(year);
+        let messageStatistik = await promiseStatistik;
+        return messageStatistik;
       };
 
       let responseMessage = message();
@@ -793,5 +811,72 @@ const getJadwalSidangPidana = (tanggal = null) => {
   });
 };
 
-// getJadwalSidangPerdata().then((res) => console.log(res));
+const getStatistik = async (year) => {
+  let querySisaTahunLalu = `SELECT COUNT(perkara.perkara_id) as jumlah_sisa FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id = perkara_putusan.perkara_id WHERE alur_perkara_id != 114 and YEAR(tanggal_pendaftaran) < ${year} AND (tanggal_putusan IS NULL OR YEAR(tanggal_putusan) = ${year})`;
+  let queryMasukTahunIni = `SELECT COUNT(perkara.perkara_id) as jumlah_masuk FROM perkara LEFT JOIN       perkara_putusan ON perkara.perkara_id = perkara_putusan.perkara_id WHERE alur_perkara_id != 114 and YEAR(tanggal_pendaftaran) = ${year} `;
+  let queryPutusTahunIni = `SELECT COUNT(perkara.perkara_id) as jumlah_putus FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id = perkara_putusan.perkara_id WHERE alur_perkara_id != 114 AND YEAR(tanggal_putusan) = ${year} AND tanggal_putusan IS NOT NULL`;
+
+  let jmlSisaTahunLalu = () => {
+    return new Promise((resolve, reject) => {
+      db.query(querySisaTahunLalu, async (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let jml = result;
+          resolve(jml);
+        }
+      });
+    });
+  };
+
+  let jmlMasukTahunIni = () => {
+    return new Promise((resolve, reject) => {
+      db.query(queryMasukTahunIni, async (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let jml = result;
+          resolve(jml);
+        }
+      });
+    });
+  };
+
+  let jmlPutusTahunIni = () => {
+    return new Promise((resolve, reject) => {
+      db.query(queryPutusTahunIni, async (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let jml = result;
+          resolve(jml);
+        }
+      });
+    });
+  };
+
+  let sisaTahunLalu = jmlSisaTahunLalu();
+  let numberSisaTahunLalu = await sisaTahunLalu;
+  let masukTahunIni = jmlMasukTahunIni();
+  let numberMasukTahunIni = await masukTahunIni;
+  let putusTahunIni = jmlPutusTahunIni();
+  let numberPutusTahunIni = await putusTahunIni;
+  let sisaTahunIni =
+    numberSisaTahunLalu[0].jumlah_sisa +
+    numberMasukTahunIni[0].jumlah_masuk -
+    numberPutusTahunIni[0].jumlah_putus;
+  let rasioPerkara =
+    (numberPutusTahunIni[0].jumlah_putus /
+      (numberSisaTahunLalu[0].jumlah_sisa +
+        numberMasukTahunIni[0].jumlah_masuk)) *
+    100;
+
+  let rasioDisplay = rasioPerkara.toFixed(2);
+
+  let message = `*Statistik Perkara Tahun ${year} (tidak termasuk perkara tilang) :* \nJumlah sisa tahun lalu : ${numberSisaTahunLalu[0].jumlah_sisa}, \nJumlah masuk : ${numberMasukTahunIni[0].jumlah_masuk} \nJumlah putus : ${numberPutusTahunIni[0].jumlah_putus} \nSisa : ${sisaTahunIni} \n*Rasio Penanganan Perkara  : ${rasioDisplay}%*`;
+
+  return message;
+};
+
+// getStatistik(2021).then((res) => console.log(res));
 module.exports = getData;

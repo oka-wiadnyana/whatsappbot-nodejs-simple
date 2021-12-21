@@ -475,7 +475,74 @@ const getDataCourtCalendar = () => {
   });
 };
 
-// getDataCourtCalendar().then((res) => console.log(res));
+const getStatistik = async () => {
+  let querySisaTahunLalu = `SELECT COUNT(perkara.perkara_id) as jumlah_sisa FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id = perkara_putusan.perkara_id WHERE alur_perkara_id != 114 and YEAR(tanggal_pendaftaran) < YEAR(CURDATE()) AND (tanggal_putusan IS NULL OR YEAR(tanggal_putusan) = YEAR(CURDATE()))`;
+  let queryMasukTahunIni = `SELECT COUNT(perkara.perkara_id) as jumlah_masuk FROM perkara LEFT JOIN       perkara_putusan ON perkara.perkara_id = perkara_putusan.perkara_id WHERE alur_perkara_id != 114 and YEAR(tanggal_pendaftaran) = YEAR(CURDATE()) `;
+  let queryPutusTahunIni = `SELECT COUNT(perkara.perkara_id) as jumlah_putus FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id = perkara_putusan.perkara_id WHERE alur_perkara_id != 114 AND YEAR(tanggal_putusan) = YEAR(CURDATE()) AND tanggal_putusan IS NOT NULL`;
+
+  let jmlSisaTahunLalu = () => {
+    return new Promise((resolve, reject) => {
+      db.query(querySisaTahunLalu, async (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let jml = result;
+          resolve(jml);
+        }
+      });
+    });
+  };
+
+  let jmlMasukTahunIni = () => {
+    return new Promise((resolve, reject) => {
+      db.query(queryMasukTahunIni, async (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let jml = result;
+          resolve(jml);
+        }
+      });
+    });
+  };
+
+  let jmlPutusTahunIni = () => {
+    return new Promise((resolve, reject) => {
+      db.query(queryPutusTahunIni, async (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          let jml = result;
+          resolve(jml);
+        }
+      });
+    });
+  };
+
+  let sisaTahunLalu = jmlSisaTahunLalu();
+  let numberSisaTahunLalu = await sisaTahunLalu;
+  let masukTahunIni = jmlMasukTahunIni();
+  let numberMasukTahunIni = await masukTahunIni;
+  let putusTahunIni = jmlPutusTahunIni();
+  let numberPutusTahunIni = await putusTahunIni;
+  let sisaTahunIni =
+    numberSisaTahunLalu[0].jumlah_sisa +
+    numberMasukTahunIni[0].jumlah_masuk -
+    numberPutusTahunIni[0].jumlah_putus;
+  let rasioPerkara =
+    (numberPutusTahunIni[0].jumlah_putus /
+      (numberSisaTahunLalu[0].jumlah_sisa +
+        numberMasukTahunIni[0].jumlah_masuk)) *
+    100;
+
+  let rasioDisplay = rasioPerkara.toFixed(2);
+
+  let message = `Jumlah sisa tahun lalu : ${numberSisaTahunLalu[0].jumlah_sisa}, \nJumlah masuk tahun ini : ${numberMasukTahunIni[0].jumlah_masuk} \nJumlah putus tahun ini : ${numberPutusTahunIni[0].jumlah_putus} \nSisa Tahun ini : ${sisaTahunIni} \n*Rasio Penanganan Perkara Tahun Ini : ${rasioDisplay}%*`;
+
+  return message;
+};
+
+// getStatistik().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -493,4 +560,5 @@ module.exports = {
   getDataSisaPanjarBanding,
   getDataSisaPanjarKasasi,
   getDataCourtCalendar,
+  getStatistik,
 };

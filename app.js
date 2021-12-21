@@ -70,8 +70,13 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-client.on("ready", async () => {
+client.on("ready", () => {
   //saat wa sudah siap
+  console.log("READY");
+});
+
+// first notif function
+const sendGroupFirst = async () => {
   try {
     let promisePenahanan = groupNotif.getDataPenahanan();
     let messagePenahanan = await promisePenahanan;
@@ -105,30 +110,83 @@ client.on("ready", async () => {
     let messageSisaPanjarKasasi = await promiseSisaPanjarKasasi;
     let promiseDataCourtCalendar = groupNotif.getDataCourtCalendar();
     let messageDataCourtCalendar = await promiseDataCourtCalendar;
+    let promiseStatistik = groupNotif.getStatistik();
+    let messageStatistik = await promiseStatistik;
 
     // dataPenahanan().then((res) => {
     //   cron.schedule("*/1 * * * *", () => {
     //     client.sendMessage("6281337320205@c.us", res);
     //   });
     // });
-    cron.schedule("0 8 * * *", () => {
-      client.sendMessage(
-        "120363021004523753@g.us",
-        `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar}`
-      );
-    });
 
-    cron.schedule("15 15 * * *", () => {
-      client.sendMessage(
-        "120363021004523753@g.us",
-        `*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara yang belum dilakukan penundaan* : \n${messageTundaJadwalSidang} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar}`
-      );
-    });
+    let msg = `\n*Statistik Penanganan Perkara Tahun ini (tidak termasuk perkara tilang)  :* \n${messageStatistik} \n\n*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar}`;
+    return msg;
   } catch (error) {
     console.log(error);
   }
+};
 
-  console.log("READY");
+cron.schedule("15 8 * * *", () => {
+  sendGroupFirst().then((res) => {
+    client.sendMessage("120363039408496373@g.us", res);
+  });
+});
+
+// second notif function
+const sendGroupSecond = async () => {
+  try {
+    let promisePenahanan = groupNotif.getDataPenahanan();
+    let messagePenahanan = await promisePenahanan;
+    let promiseBA = groupNotif.getDataBA();
+    let messageBA = await promiseBA;
+    let promisePutusanBelumMinut = groupNotif.getDataPutusanBelumMinut();
+    let messagePutusanBelumMinut = await promisePutusanBelumMinut;
+    let promiseBelumBhtPidana = groupNotif.getDataBelumBhtPidana();
+    let messageBelumBhtPidana = await promiseBelumBhtPidana;
+    let promiseBelumBhtPerdata = groupNotif.getDataBelumBhtPerdata();
+    let messageBelumBhtPerdata = await promiseBelumBhtPerdata;
+    let promiseBelumSerahHukum = groupNotif.getDataBelumSerahHukum();
+    let messageBelumSerahHukum = await promiseBelumSerahHukum;
+    let promiseTundaJadwalSidang = groupNotif.getDataTundaJadwalSidang();
+    let messageTundaJadwalSidang = await promiseTundaJadwalSidang;
+    let promiseSaksiTidakLengkap = groupNotif.getDataSaksiTidakLengkap();
+    let messageSaksiTidakLengkap = await promiseSaksiTidakLengkap;
+    let promisePutusanBelumBeritahu = groupNotif.getDataPutusanBelumBeritahu();
+    let messagePutusanBelumBeritahu = await promisePutusanBelumBeritahu;
+    let promiseJadwalSidangPidana = groupNotif.getDataJadwalSidangPidana();
+    let messageJadwalSidangPidana = await promiseJadwalSidangPidana;
+    let promiseJadwalSidangPerdata = groupNotif.getDataJadwalSidangPerdata();
+    let messageJadwalSidangPerdata = await promiseJadwalSidangPerdata;
+    let promiseJadwalMediasi = groupNotif.getDataJadwalMediasi();
+    let messageJadwalMediasi = await promiseJadwalMediasi;
+    let promiseSisaPanjarPn = groupNotif.getDataSisaPanjarPn();
+    let messageSisaPanjarPn = await promiseSisaPanjarPn;
+    let promiseSisaPanjarBanding = groupNotif.getDataSisaPanjarBanding();
+    let messageSisaPanjarBanding = await promiseSisaPanjarBanding;
+    let promiseSisaPanjarKasasi = groupNotif.getDataSisaPanjarKasasi();
+    let messageSisaPanjarKasasi = await promiseSisaPanjarKasasi;
+    let promiseDataCourtCalendar = groupNotif.getDataCourtCalendar();
+    let messageDataCourtCalendar = await promiseDataCourtCalendar;
+    let promiseStatistik = groupNotif.getStatistik();
+    let messageStatistik = await promiseStatistik;
+
+    // dataPenahanan().then((res) => {
+    //   cron.schedule("*/1 * * * *", () => {
+    //     client.sendMessage("6281337320205@c.us", res);
+    //   });
+    // });
+    let msg = `*Statistik Penanganan Perkara Tahun ini (tidak termasuk perkara tilang)  :* \n${messageStatistik} \n\n*Data penahanan yang habis dalam 10 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara yang belum dilakukan penundaan* : \n${messageTundaJadwalSidang} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar}`;
+    return msg;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// second notif
+cron.schedule("15 15 * * *", () => {
+  sendGroupSecond().then((res) => {
+    client.sendMessage("120363039408496373@g.us", res);
+  });
 });
 
 client.on("message", async (msg) => {
