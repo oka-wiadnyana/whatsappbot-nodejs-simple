@@ -55,7 +55,7 @@ const getDataPenahanan = () => {
 
 const getDataBA = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara,tanggal_sidang,agenda,panitera_nama FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE (alur_perkara_id=1 OR alur_perkara_id =2 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=118 OR alur_perkara_id=119 OR alur_perkara_id=120 OR alur_perkara_id=121) AND (YEAR(tanggal_sidang)=YEAR(NOW()) AND tanggal_sidang<=CURDATE()-1 AND edoc_bas IS NULL) ORDER BY tanggal_sidang DESC`;
+    let query = `SELECT nomor_perkara,tanggal_sidang,agenda,panitera_nama FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE (alur_perkara_id=1 OR alur_perkara_id =2 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=118 OR alur_perkara_id=119 OR alur_perkara_id=120 OR alur_perkara_id=121) AND (YEAR(tanggal_sidang)=YEAR(NOW()) AND tanggal_sidang < CURDATE() AND edoc_bas IS NULL) ORDER BY tanggal_sidang DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -113,7 +113,7 @@ const getDataPutusanBelumMinut = () => {
 
 const getDataBelumBhtPidana = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, v_perkara_detil.tanggal_putusan,v_perkara_detil.tanggal_minutasi,panitera_nama FROM v_perkara_detil  LEFT JOIN perkara_putusan ON v_perkara_detil.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON v_perkara_detil.perkara_id=perkara_panitera_pn.perkara_id WHERE v_perkara_detil.tanggal_putusan IS NOT NULL AND v_perkara_detil.tanggal_minutasi IS NOT NULL AND perkara_putusan.tanggal_bht IS NULL AND permohonan_banding IS NULL AND permohonan_kasasi IS NULL AND YEAR(v_perkara_detil.tanggal_putusan)>=2019 AND (((alur_perkara_id = 111 OR alur_perkara_id = 112 OR alur_perkara_id = 118) AND v_perkara_detil.tanggal_minutasi <= CURDATE()-7)) ORDER BY tanggal_putusan DESC`;
+    let query = `SELECT nomor_perkara, v_perkara_detil.tanggal_putusan,v_perkara_detil.tanggal_minutasi,panitera_nama FROM v_perkara_detil  LEFT JOIN perkara_putusan ON v_perkara_detil.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON v_perkara_detil.perkara_id=perkara_panitera_pn.perkara_id WHERE v_perkara_detil.tanggal_putusan IS NOT NULL AND v_perkara_detil.tanggal_minutasi IS NOT NULL AND perkara_putusan.tanggal_bht IS NULL AND permohonan_banding IS NULL AND permohonan_kasasi IS NULL AND YEAR(v_perkara_detil.tanggal_putusan)>=2019 AND (((alur_perkara_id = 111 OR alur_perkara_id = 112 OR alur_perkara_id = 113 OR alur_perkara_id = 118) AND v_perkara_detil.tanggal_minutasi <= CURDATE())) ORDER BY tanggal_putusan DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -143,7 +143,7 @@ const getDataBelumBhtPidana = () => {
 
 const getDataBelumBhtPerdata = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, v_perkara_detil.tanggal_putusan,v_perkara_detil.tanggal_minutasi,panitera_nama FROM v_perkara_detil  LEFT JOIN perkara_putusan ON v_perkara_detil.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON v_perkara_detil.perkara_id=perkara_panitera_pn.perkara_id WHERE v_perkara_detil.tanggal_putusan IS NOT NULL AND v_perkara_detil.tanggal_minutasi IS NOT NULL AND perkara_putusan.tanggal_bht IS NULL AND permohonan_banding IS NULL AND permohonan_kasasi IS NULL AND YEAR(v_perkara_detil.tanggal_putusan)>=2019  AND (((alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8) AND v_perkara_detil.tanggal_minutasi <= CURDATE()-14)) ORDER BY v_perkara_detil.tanggal_putusan DESC`;
+    let query = `SELECT nomor_perkara, v_perkara_detil.tanggal_putusan,v_perkara_detil.tanggal_minutasi,panitera_nama FROM v_perkara_detil  LEFT JOIN perkara_putusan ON v_perkara_detil.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON v_perkara_detil.perkara_id=perkara_panitera_pn.perkara_id WHERE v_perkara_detil.tanggal_putusan IS NOT NULL AND v_perkara_detil.tanggal_minutasi IS NOT NULL AND perkara_putusan.tanggal_bht IS NULL AND permohonan_banding IS NULL AND permohonan_kasasi IS NULL AND YEAR(v_perkara_detil.tanggal_putusan)>=2019  AND (((alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8) AND v_perkara_detil.tanggal_minutasi <= CURDATE())) ORDER BY v_perkara_detil.tanggal_putusan DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -542,7 +542,71 @@ const getStatistik = async () => {
   return message;
 };
 
-// getStatistik().then((res) => console.log(res));
+const getBelumBhtBanding = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, putusan_banding, pemberitahuan_putusan_banding from v_perkara_detil join perkara_putusan on v_perkara_detil.perkara_id=perkara_putusan.perkara_id where pemberitahuan_putusan_banding IS NOT NULL AND tanggal_bht is null and permohonan_kasasi IS NULL AND year(pemberitahuan_putusan_banding)>=2021`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${
+                r.nomor_perkara
+              }, tanggal putusan banding : ${moment(r.putusan_banding).format(
+                "D-M-YYY"
+              )}, tanggal pemberitahuan putusan banding : ${moment(
+                r.pemberitahuan_putusan_banding
+              ).format("D-M-YYY")}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getBelumBhtKasasi = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, putusan_kasasi, pemberitahuan_putusan_kasasi from v_perkara_detil join perkara_putusan on v_perkara_detil.perkara_id=perkara_putusan.perkara_id where pemberitahuan_putusan_kasasi IS NOT NULL AND tanggal_bht is null AND year(pemberitahuan_putusan_kasasi)>=2021`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${
+                r.nomor_perkara
+              }, tanggal putusan kasasi : ${moment(r.putusan_kasasi).format(
+                "D-M-YYY"
+              )}, tanggal pemberitahuan putusan kasasi : ${moment(
+                r.pemberitahuan_putusan_kasasi
+              ).format("D-M-YYY")}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+// getBelumBhtBanding().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -561,4 +625,6 @@ module.exports = {
   getDataSisaPanjarKasasi,
   getDataCourtCalendar,
   getStatistik,
+  getBelumBhtBanding,
+  getBelumBhtKasasi,
 };
