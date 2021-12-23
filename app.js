@@ -94,7 +94,8 @@ const sendGroupFirst = async () => {
     let messageTundaJadwalSidang = await promiseTundaJadwalSidang;
     let promiseSaksiTidakLengkap = groupNotif.getDataSaksiTidakLengkap();
     let messageSaksiTidakLengkap = await promiseSaksiTidakLengkap;
-    let promisePutusanBelumBeritahu = groupNotif.getDataPutusanBelumBeritahu();
+    let promisePutusanBelumBeritahu =
+      groupNotif.getDataPutusanBelumBeritahuNew();
     let messagePutusanBelumBeritahu = await promisePutusanBelumBeritahu;
     let promiseJadwalSidangPidana = groupNotif.getDataJadwalSidangPidana();
     let messageJadwalSidangPidana = await promiseJadwalSidangPidana;
