@@ -639,10 +639,10 @@ const getBelumBhtKasasi = () => {
               `No Perkara : ${
                 r.nomor_perkara
               }, tanggal putusan kasasi : ${moment(r.putusan_kasasi).format(
-                "D-M-YYY"
+                "D-M-YYYY"
               )}, tanggal pemberitahuan putusan kasasi : ${moment(
                 r.pemberitahuan_putusan_kasasi
-              ).format("D-M-YYY")}`
+              ).format("D-M-YYYY")}`
             );
           });
           responseMessage = resultArray.join("\n");
