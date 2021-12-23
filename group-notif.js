@@ -259,9 +259,37 @@ const getDataSaksiTidakLengkap = () => {
   });
 };
 
-const getDataPutusanBelumBeritahu = () => {
+// const getDataPutusanBelumBeritahu = () => {
+//   return new Promise((resolve, reject) => {
+//     let query = `SELECT nomor_perkara, tanggal_putusan, panitera_nama FROM perkara LEFT JOIN perkara_putusan_pemberitahuan_putusan ON perkara.perkara_id=perkara_putusan_pemberitahuan_putusan.perkara_id LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_putusan IS NOT NULL AND (alur_perkara_id=1 OR alur_perkara_id=2 OR alur_perkara_id=8 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=113 OR alur_perkara_id=118) AND perkara_putusan_pemberitahuan_putusan.perkara_id IS NULL  AND YEAR(tanggal_putusan)>='2019' ORDER BY perkara.perkara_id DESC`;
+
+//     db.query(query, (err, result) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         let responseMessage;
+//         if (result.length != 0) {
+//           let resultArray = [];
+//           result.forEach((r) => {
+//             resultArray.push(
+//               `No Perkara : ${r.nomor_perkara}, tanggal putusan : ${moment(
+//                 r.tanggal_putusan
+//               ).format("D-M-YYYY")}, PP : ${r.panitera_nama}`
+//             );
+//           });
+//           responseMessage = resultArray.join("\n");
+//         } else {
+//           responseMessage = `Tidak ada data`;
+//         }
+//         resolve(responseMessage);
+//       }
+//     });
+//   });
+// };
+
+const getDataPutusanBelumBeritahuNew = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, tanggal_putusan, panitera_nama FROM perkara LEFT JOIN perkara_putusan_pemberitahuan_putusan ON perkara.perkara_id=perkara_putusan_pemberitahuan_putusan.perkara_id LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_putusan IS NOT NULL AND (alur_perkara_id=1 OR alur_perkara_id=2 OR alur_perkara_id=8 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=113 OR alur_perkara_id=118) AND perkara_putusan_pemberitahuan_putusan.perkara_id IS NULL  AND YEAR(tanggal_putusan)>='2019' ORDER BY perkara.perkara_id DESC`;
+    let query = `SELECT perkara.perkara_id, alur_perkara_id,nomor_perkara, nama, pihak,perkara_putusan_pemberitahuan_putusan.pihak_id as pihak_pemb, tanggal_pemberitahuan_putusan, tanggal_putusan FROM perkara LEFT JOIN perkara_putusan_pemberitahuan_putusan ON perkara.perkara_id=perkara_putusan_pemberitahuan_putusan.perkara_id LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN pihak ON perkara_putusan_pemberitahuan_putusan.pihak_id=pihak.id WHERE alur_perkara_id !=114 AND tanggal_putusan is not null AND year(tanggal_putusan) > 2020 AND tanggal_pemberitahuan_putusan is null ORDER BY perkara.perkara_id DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -271,11 +299,32 @@ const getDataPutusanBelumBeritahu = () => {
         if (result.length != 0) {
           let resultArray = [];
           result.forEach((r) => {
-            resultArray.push(
-              `No Perkara : ${r.nomor_perkara}, tanggal putusan : ${moment(
-                r.tanggal_putusan
-              ).format("D-M-YYYY")}, PP : ${r.panitera_nama}`
-            );
+            let pihak_jenis;
+            if (r.alur_perkara_id == 1 || r.alur_perkara_id == 8) {
+              pihak_jenis = r.pihak == 1 ? "Penggugat" : "Tergugat";
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara},  tanggal putusan : ${moment(
+                  r.tanggal_putusan
+                ).format(
+                  "D-M-YYYY"
+                )}, pihak yang belum diberitahukan : ${pihak_jenis}`
+              );
+            } else if (
+              r.alur_perkara_id == 111 ||
+              r.alur_perkara_id == 112 ||
+              r.alur_perkara_id == 113 ||
+              r.alur_perkara_id == 118
+            ) {
+              pihak_jenis = r.pihak == 1 ? "Penuntut Umum" : "Terdakwa";
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara},  pihak yang belum diberitahukan : ${pihak_jenis}`
+              );
+            } else {
+              pihak_jenis = "Pemohon";
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara},  pihak yang belum diberitahukan : ${pihak_jenis}`
+              );
+            }
           });
           responseMessage = resultArray.join("\n");
         } else {
@@ -606,7 +655,7 @@ const getBelumBhtKasasi = () => {
   });
 };
 
-// getBelumBhtBanding().then((res) => console.log(res));
+// getDataPutusanBelumBeritahuNew().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -616,7 +665,7 @@ module.exports = {
   getDataBelumSerahHukum,
   getDataTundaJadwalSidang,
   getDataSaksiTidakLengkap,
-  getDataPutusanBelumBeritahu,
+  getDataPutusanBelumBeritahuNew,
   getDataJadwalSidangPidana,
   getDataJadwalSidangPerdata,
   getDataJadwalMediasi,
