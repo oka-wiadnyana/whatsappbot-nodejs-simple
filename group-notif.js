@@ -655,7 +655,352 @@ const getBelumBhtKasasi = () => {
   });
 };
 
-// getDataPutusanBelumBeritahuNew().then((res) => console.log(res));
+const getBelumPanggilan = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT
+    perk.nomor_perkara,
+    perk.perkara_id,
+    perk.alur_perkara_id,
+    alur.nama AS nama_alur,
+   
+    (
+      SELECT
+        GROUP_CONCAT(
+          DISTINCT hkpn.nama_gelar
+          ORDER BY
+            hk.id ASC SEPARATOR '<br>'
+        ) AS nama_hakim
+      FROM
+        perkara_hakim_pn AS hk
+        JOIN hakim_pn AS hkpn ON hkpn.id = hk.hakim_id
+      WHERE
+        hk.perkara_id = perk.perkara_id
+        AND hk.aktif = 'Y'
+      ORDER BY
+        hk.urutan ASC
+    ) AS majelis_hakim,
+    (
+      SELECT
+        GROUP_CONCAT(
+          DISTINCT pp.nama
+          ORDER BY
+            ppp.id ASC SEPARATOR '<br>'
+        ) AS nama_js
+      FROM
+        perkara_panitera_pn AS ppp
+        JOIN panitera_pn AS pp ON pp.id = ppp.panitera_id
+      WHERE
+        ppp.perkara_id = perk.perkara_id
+        AND ppp.aktif = 'Y'
+      ORDER BY
+        ppp.urutan ASC
+    ) AS panitera_nama,
+    (
+      SELECT
+        GROUP_CONCAT(
+          DISTINCT jspn.nama
+          ORDER BY
+            pjs.id ASC SEPARATOR '<br>'
+        ) AS nama_js
+      FROM
+        perkara_jurusita AS pjs
+        JOIN jurusita AS jspn ON jspn.id = pjs.jurusita_id
+      WHERE
+        pjs.perkara_id = perk.perkara_id
+        AND pjs.aktif = 'Y'
+      ORDER BY
+        pjs.urutan ASC
+    ) AS jurusita,
+    sidang.id AS sidang_id,
+    DATE_FORMAT(sidang.tanggal_sidang, '%d-%m-%Y') AS tanggal_sidang,
+    sidang.agenda,
+    perkarapihak.pihak_id,
+    perkarapihak.nama AS nama_pihak,
+    perkarapihak.pihakke,
+    perkarapihak.ketpihak,
+    perkarapihak.pengacara_pihak_id,
+    datarelaas.id AS relaas_id,
+    DATE_FORMAT(datarelaas.tanggal_relaas, '%d-%m-%Y') AS tanggal_relaas,
+    datarelaas.doc_relaas,
+    sidang.urutan,
+    jadwalsidang.urutan AS urutan_sebelumnya,
+    jadwalsidang.dihadiri_oleh AS status_kehadiran_sebelumnya,
+    (
+      CASE
+        WHEN(phs.tahapan_id = 12) THEN 'Y'
+        ELSE 'T'
+      END
+    ) AS sidang_pertama
+  FROM
+    perkara AS perk
+    JOIN perkara_jadwal_sidang AS sidang ON sidang.perkara_id = perk.perkara_id
+    JOIN (
+      SELECT
+        p1.perkara_id,
+        p1.pihak_id,
+        p1.nama,
+        1 AS pihakke,
+        'pihak' AS ketpihak,
+        '' AS pengacara_pihak_id
+      FROM
+        perkara_pihak1 AS p1
+        JOIN perkara ON perkara.perkara_id = p1.perkara_id
+      WHERE
+        alur_perkara_id < 111
+      UNION
+      SELECT
+        p2.perkara_id,
+        p2.pihak_id,
+        p2.nama,
+        2 AS pihakke,
+        'pihak' AS ketpihak,
+        '' AS pengacara_pihak_id
+      FROM
+        perkara_pihak2 AS p2
+        JOIN perkara ON perkara.perkara_id = p2.perkara_id
+      WHERE
+        alur_perkara_id < 111
+        AND (
+          status_penahanan_id IS NULL
+          OR status_penahanan_id = 0
+        )
+        AND (
+          jenis_tahanan_id = 0
+          OR jenis_tahanan_id IS NULL
+        )
+      UNION
+      SELECT
+        p3.perkara_id,
+        p3.pihak_id,
+        p3.nama,
+        3 AS pihakke,
+        'intervensi' AS ketpihak,
+        '' AS pengacara_pihak_id
+      FROM
+        perkara_pihak3 AS p3
+      UNION
+      SELECT
+        p4.perkara_id,
+        p4.pihak_id,
+        p4.nama,
+        4 AS pihakke,
+        'turut' AS ketpihak,
+        '' AS pengacara_pihak_id
+      FROM
+        perkara_pihak4 AS p4
+      UNION
+      SELECT
+        p5.perkara_id,
+        p5.pengacara_id,
+        p5.nama,
+        p5.pihak_ke AS pihhkke,
+        'pengacara' AS ketpihak,
+        p5.pihak_id AS pengacara_pihak_id
+      FROM
+        perkara_pengacara AS p5
+    ) AS perkarapihak ON perkarapihak.perkara_id = perk.perkara_id
+    LEFT JOIN perkara_pelaksanaan_relaas AS datarelaas ON datarelaas.pihak_id = perkarapihak.pihak_id
+    AND datarelaas.perkara_id = perk.perkara_id
+    AND datarelaas.sidang_id = sidang.id
+    LEFT JOIN (
+      SELECT
+        perkara.perkara_id AS perkara_id,
+        perkara_jadwal_sidang.urutan AS urutan,
+        perkara_jadwal_sidang.dihadiri_oleh
+      FROM
+        (
+          perkara
+          JOIN perkara_jadwal_sidang ON (
+            perkara_jadwal_sidang.perkara_id = perkara.perkara_id
+          )
+        )
+    ) AS jadwalsidang ON (
+      jadwalsidang.perkara_id = perk.perkara_id
+      AND jadwalsidang.urutan = sidang.urutan - 1
+    )
+    LEFT JOIN perkara_penetapan_hari_sidang AS phs ON (
+      phs.perkara_id = perk.perkara_id
+      AND phs.jadwalsidang_id = sidang.id
+    )
+    JOIN alur_perkara AS alur ON alur.id = perk.alur_perkara_id
+   
+  WHERE
+    YEAR(perk.tanggal_pendaftaran) = YEAR(CURDATE())
+    AND perk.alur_perkara_id < 111
+    AND perkarapihak.pihak_id NOT IN (
+      SELECT
+        pp.pihak_id
+      FROM
+        perkara_pelaksanaan_relaas
+        JOIN perkara_pengacara AS pp ON pp.pengacara_id = perkara_pelaksanaan_relaas.pihak_id
+        AND pp.perkara_id = perkara_pelaksanaan_relaas.perkara_id
+        JOIN perkara ON pp.perkara_id = perkara.perkara_id
+      WHERE
+        perk.alur_perkara_id < 111
+        AND perkara_pelaksanaan_relaas.perkara_id = perk.perkara_id
+        AND perkara_pelaksanaan_relaas.sidang_id = sidang.id
+        AND (
+          perkara_pelaksanaan_relaas.tanggal_relaas IS NOT NULL
+          OR perkara_pelaksanaan_relaas.tanggal_relaas <> ''
+        )
+        AND (
+          perkara_pelaksanaan_relaas.doc_relaas IS NOT NULL
+          OR perkara_pelaksanaan_relaas.doc_relaas <> ''
+        )
+      UNION
+      SELECT
+        ppb.pengacara_id
+      FROM
+        perkara_pelaksanaan_relaas
+        JOIN perkara_pengacara AS ppb ON ppb.pihak_id = perkara_pelaksanaan_relaas.pihak_id
+        AND ppb.perkara_id = perkara_pelaksanaan_relaas.perkara_id
+        JOIN perkara ON ppb.perkara_id = perkara.perkara_id
+      WHERE
+        perk.alur_perkara_id < 111
+        AND perkara_pelaksanaan_relaas.perkara_id = perk.perkara_id
+        AND perkara_pelaksanaan_relaas.sidang_id = sidang.id
+        AND (
+          perkara_pelaksanaan_relaas.tanggal_relaas IS NOT NULL
+          OR perkara_pelaksanaan_relaas.tanggal_relaas <> ''
+        )
+        AND (
+          perkara_pelaksanaan_relaas.doc_relaas IS NOT NULL
+          OR perkara_pelaksanaan_relaas.doc_relaas <> ''
+        )
+    )
+    AND (
+      (
+        datarelaas.tanggal_relaas IS NULL
+        OR datarelaas.tanggal_relaas = ''
+      )
+      OR (
+        datarelaas.doc_relaas IS NULL
+        OR datarelaas.doc_relaas = ''
+      )
+    )
+    AND(
+      perk.alur_perkara_id >= 1
+      AND perk.alur_perkara_id <= 17
+    )
+    AND (
+      (jadwalsidang.dihadiri_oleh <> 1)
+      AND (
+        jadwalsidang.dihadiri_oleh = 2
+        AND (
+          perkarapihak.pihakke = 2
+          OR perkarapihak.pihakke = 4
+        )
+      )
+      OR (
+        jadwalsidang.dihadiri_oleh = 3
+        AND perkarapihak.pihakke = 1
+      )
+      OR (
+        jadwalsidang.dihadiri_oleh = 4
+        OR jadwalsidang.dihadiri_oleh IS NULL
+      )
+    )
+    AND DATEDIFF(CURRENT_DATE, sidang.tanggal_sidang) >= -3
+    AND sidang.urutan = 1
+  ORDER BY
+    perk.perkara_id DESC,
+    sidang.tanggal_sidang ASC`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${r.nomor_perkara}, tanggal sidang : ${r.tanggal_sidang}, nama_pihak : ${r.nama_pihak}, jurusita : ${r.jurusita}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getBelumEdocCourtCalendar = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT
+    A.nomor_perkara,
+    (
+      SELECT
+        panitera_nama
+      FROM
+        perkara_panitera_pn
+      WHERE
+        perkara_panitera_pn.perkara_id = A.perkara_id
+    ) as nama_panitera,
+    (
+      SELECT
+        GROUP_CONCAT(
+          DISTINCT G.nama_gelar
+          ORDER BY
+            E.id ASC SEPARATOR '<br>'
+        ) AS nama_hakim
+      FROM
+        perkara_hakim_pn AS E
+        LEFT JOIN hakim_pn AS G ON G.id = E.hakim_id
+      WHERE
+        E.aktif = 'Y'
+        AND E.perkara_id = A.perkara_id
+    ) AS nama_gelar_hakim,
+    A.proses_terakhir_text,
+    A.para_pihak
+  FROM
+    perkara AS A
+    LEFT JOIN perkara_putusan AS C ON C.perkara_id = A.perkara_id
+    LEFT JOIN perkara_panitera_pn AS D ON D.perkara_id = A.perkara_id
+    LEFT JOIN perkara_edoc_calendar AS F ON F.perkara_id = A.perkara_id
+    LEFT JOIN perkara_jadwal_sidang AS H ON H.perkara_id = A.perkara_id
+  WHERE
+    D.aktif = 'Y'
+    AND YEAR(A.tanggal_pendaftaran) = 2021
+    AND C.tanggal_minutasi IS NULL
+    AND H.dihadiri_oleh = '1'
+    AND TIMESTAMPDIFF(DAY, H.tanggal_sidang, NOW()) > '0'
+    AND (
+      F.edoc_calender IS NULL
+      OR F.edoc_calender = ''
+    )
+    AND A.alur_perkara_id NOT IN (18, 112, 113, 114)
+  GROUP BY
+    A.perkara_id
+  ORDER BY
+    A.tanggal_pendaftaran DESC`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `No Perkara : ${r.nomor_perkara}, PP : ${r.nama_panitera}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+getBelumEdocCourtCalendar().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -676,4 +1021,6 @@ module.exports = {
   getStatistik,
   getBelumBhtBanding,
   getBelumBhtKasasi,
+  getBelumPanggilan,
+  getBelumEdocCourtCalendar,
 };
