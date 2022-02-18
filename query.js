@@ -451,33 +451,45 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
         }
       });
     } else if (keyword[0] == "covid") {
-      let prov = "DKI JAKARTA";
-      let dataProv = await axios
-        .get("https://data.covid19.go.id/public/api/prov.json")
-        .then((response) => {
-          let data = response.data.list_data.filter((obj) => {
-            return obj.key == prov;
+      let prov = "BALI";
+
+      let dataProv = async () => {
+        let data = await axios
+          .get("https://data.covid19.go.id/public/api/prov.json")
+          .then((response) => {
+            let data = response.data.list_data.filter((obj) => {
+              return obj.key == prov;
+            });
+            return `Provinsi : ${
+              data[0].key
+            } \nJumlah kasus : ${data[0].jumlah_kasus.toLocaleString()} \nJumlah sembuh : ${data[0].jumlah_sembuh.toLocaleString()} \nJumlah meninggal : ${data[0].jumlah_meninggal.toLocaleString()}`;
+          })
+          .catch((err) => {
+            return "Api error";
           });
-          return `*Provinsi* : ${
-            data[0].key
-          } \nJumlah kasus : *${data[0].jumlah_kasus.toLocaleString()}* \nJumlah sembuh : *${data[0].jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${data[0].jumlah_meninggal.toLocaleString()}*`;
-        })
-        .catch((err) => {
-          return "Api error";
-        });
 
-      let dataIndonesia = await axios
-        .get("https://data.covid19.go.id/public/api/update.json")
-        .then((response) => {
-          return `*Indonesia* \nJumlah positif : *${response.data.update.total.jumlah_positif.toLocaleString()}* \nJumlah sembuh : *${response.data.update.total.jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${response.data.update.total.jumlah_meninggal.toLocaleString()}*`;
-        })
-        .catch((err) => {
-          return "Api error";
-        });
+        return data;
+      };
 
-      let msg = `${dataProv} \n\n${dataIndonesia}`;
+      let dataIndonesia = async () => {
+        let data = axios
+          .get("https://data.covid19.go.id/public/api/update.json")
+          .then((response) => {
+            return `Indonesia \nJumlah positif : ${response.data.update.total.jumlah_positif.toLocaleString()} \nJumlah sembuh : ${response.data.update.total.jumlah_sembuh.toLocaleString()} \nJumlah meninggal : ${response.data.update.total.jumlah_meninggal.toLocaleString()}`;
+          })
+          .catch((err) => {
+            return "Api error";
+          });
+        return data;
+      };
 
-      resolve(msg);
+      let msg = async () => {
+        let jmlProv = await dataProv();
+        let jmlIndonesia = await dataIndonesia();
+        return `${jmlProv} \n\n${jmlIndonesia}`;
+      };
+
+      resolve(msg());
 
       // axios
       //   .get("https://data.covid19.go.id/public/api/update.json")
