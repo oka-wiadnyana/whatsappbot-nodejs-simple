@@ -451,16 +451,44 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
         }
       });
     } else if (keyword[0] == "covid") {
-      axios
-        .get("https://data.covid19.go.id/public/api/update.json")
+      let prov = "DKI JAKARTA";
+      let dataProv = await axios
+        .get("https://data.covid19.go.id/public/api/prov.json")
         .then((response) => {
-          let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif.toLocaleString()}* \nJumlah sembuh : *${response.data.update.total.jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${response.data.update.total.jumlah_meninggal.toLocaleString()}*`;
-          resolve(responseMessage);
+          let data = response.data.list_data.filter((obj) => {
+            return obj.key == prov;
+          });
+          return `*Provinsi* : ${
+            data[0].key
+          } \nJumlah kasus : *${data[0].jumlah_kasus.toLocaleString()}* \nJumlah sembuh : *${data[0].jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${data[0].jumlah_meninggal.toLocaleString()}*`;
         })
         .catch((err) => {
-          let responseMessage = "Api error";
-          resolve(responseMessage);
+          return "Api error";
         });
+
+      let dataIndonesia = await axios
+        .get("https://data.covid19.go.id/public/api/update.json")
+        .then((response) => {
+          return `*Indonesia* \nJumlah positif : *${response.data.update.total.jumlah_positif.toLocaleString()}* \nJumlah sembuh : *${response.data.update.total.jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${response.data.update.total.jumlah_meninggal.toLocaleString()}*`;
+        })
+        .catch((err) => {
+          return "Api error";
+        });
+
+      let msg = `${dataProv} \n\n${dataIndonesia}`;
+
+      resolve(msg);
+
+      // axios
+      //   .get("https://data.covid19.go.id/public/api/update.json")
+      //   .then((response) => {
+      //     let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif.toLocaleString()}* \nJumlah sembuh : *${response.data.update.total.jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${response.data.update.total.jumlah_meninggal.toLocaleString()}*`;
+      //     resolve(responseMessage);
+      //   })
+      //   .catch((err) => {
+      //     let responseMessage = "Api error";
+      //     resolve(responseMessage);
+      //   });
 
       // try {
       //   axios.get("https://api.kawalcorona.com/indonesia").then((response) => {
@@ -900,19 +928,35 @@ const covid = async () => {
   //   .catch((err) => {
   //     console.log(err);
   //   });
-
-  axios
-    .get("https://example")
+  let prov = "DKI JAKARTA";
+  let dataProv = await axios
+    .get("https://data.covid19.go.id/public/api/prov.json")
     .then((response) => {
-      let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif}* \nJumlah sembuh : *${response.data.update.total.jumlah_positif}* \nJumlah meninggal : *${response.data.update.total.jumlah_positif}*`;
-      console.log(responseMessage);
+      let data = response.data.list_data.filter((obj) => {
+        return obj.key == prov;
+      });
+      return `*Provinsi* : ${
+        data[0].key
+      } \nJumlah kasus : *${data[0].jumlah_kasus.toLocaleString()}* \nJumlah sembuh : *${data[0].jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${data[0].jumlah_meninggal.toLocaleString()}*`;
     })
     .catch((err) => {
-      let responseMessage = "Api error";
-      console.log(responseMessage);
+      return "Api error";
     });
+
+  let dataIndonesia = await axios
+    .get("https://data.covid19.go.id/public/api/update.json")
+    .then((response) => {
+      return `*Indonesia* \nJumlah positif : *${response.data.update.total.jumlah_positif.toLocaleString()}* \nJumlah sembuh : *${response.data.update.total.jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${response.data.update.total.jumlah_meninggal.toLocaleString()}*`;
+    })
+    .catch((err) => {
+      return "Api error";
+    });
+
+  let msg = `${dataProv} \n\n${dataIndonesia}`;
+
+  console.log(msg);
 };
 
-// covid();
+covid();
 // getStatistik(2021).then((res) => console.log(res));
 module.exports = getData;
