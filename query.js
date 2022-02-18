@@ -451,16 +451,27 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
         }
       });
     } else if (keyword[0] == "covid") {
-      try {
-        axios.get("https://api.kawalcorona.com/indonesia").then((response) => {
-          let responseMessage = `Jumlah positif : *${response.data[0].positif}* \nJumlah sembuh : *${response.data[0].sembuh}* \nJumlah meninggal : *${response.data[0].meninggal}*`;
-
+      axios
+        .get("https://data.covid19.go.id/public/api/update.json")
+        .then((response) => {
+          let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif}* \nJumlah sembuh : *${response.data.update.total.jumlah_positif}* \nJumlah meninggal : *${response.data.update.total.jumlah_positif}*`;
+          resolve(responseMessage);
+        })
+        .catch((err) => {
+          let responseMessage = "Api error";
           resolve(responseMessage);
         });
-      } catch (error) {
-        let responseMessage = `Koneksi ke API error`;
-        resolve(responseMessage);
-      }
+
+      // try {
+      //   axios.get("https://api.kawalcorona.com/indonesia").then((response) => {
+      //     let responseMessage = `Jumlah positif : *${response.data[0].positif}* \nJumlah sembuh : *${response.data[0].sembuh}* \nJumlah meninggal : *${response.data[0].meninggal}*`;
+
+      //     resolve(responseMessage);
+      //   });
+      // } catch (error) {
+      //   let responseMessage = `Koneksi ke API error`;
+      //   resolve(responseMessage);
+      // }
     } else if (keyword[0] == "monev_bas") {
       let query = `SELECT nomor_perkara,tanggal_sidang,agenda,panitera_nama FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE (alur_perkara_id=1 OR alur_perkara_id =2 OR alur_perkara_id=111 OR alur_perkara_id=112 OR alur_perkara_id=118 OR alur_perkara_id=119 OR alur_perkara_id=120 OR alur_perkara_id=121) AND (YEAR(tanggal_sidang)=YEAR(NOW()) AND tanggal_sidang<=CURDATE()-1 AND edoc_bas IS NULL) ORDER BY tanggal_sidang DESC`;
 
@@ -878,5 +889,30 @@ const getStatistik = async (year) => {
   return message;
 };
 
+const covid = async () => {
+  let data;
+  let dataCovid;
+  // dataCovid = axios
+  //   .get("https://data.covid19.go.id/public/api/update.json")
+  //   .then((response) => {
+  //     console.log(response);
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
+
+  axios
+    .get("https://example")
+    .then((response) => {
+      let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif}* \nJumlah sembuh : *${response.data.update.total.jumlah_positif}* \nJumlah meninggal : *${response.data.update.total.jumlah_positif}*`;
+      console.log(responseMessage);
+    })
+    .catch((err) => {
+      let responseMessage = "Api error";
+      console.log(responseMessage);
+    });
+};
+
+// covid();
 // getStatistik(2021).then((res) => console.log(res));
 module.exports = getData;
