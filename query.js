@@ -454,7 +454,7 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
       axios
         .get("https://data.covid19.go.id/public/api/update.json")
         .then((response) => {
-          let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif}* \nJumlah sembuh : *${response.data.update.total.jumlah_positif}* \nJumlah meninggal : *${response.data.update.total.jumlah_positif}*`;
+          let responseMessage = `Jumlah positif : *${response.data.update.total.jumlah_positif.toLocaleString()}* \nJumlah sembuh : *${response.data.update.total.jumlah_sembuh.toLocaleString()}* \nJumlah meninggal : *${response.data.update.total.jumlah_meninggal.toLocaleString()}*`;
           resolve(responseMessage);
         })
         .catch((err) => {
