@@ -500,7 +500,7 @@ const getDataSisaPanjarKasasi = () => {
 
 const getDataCourtCalendar = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT rencana_agenda, nomor_perkara, rencana_tanggal, panitera_nama FROM (SELECT MAX(id) AS id_cc, perkara_id FROM perkara_court_calendar GROUP BY perkara_id ORDER BY perkara_id DESC) AS court_calendar LEFT JOIN perkara ON court_calendar.perkara_id=perkara.perkara_id LEFT JOIN perkara_court_calendar ON   court_calendar.id_cc = perkara_court_calendar.id LEFT JOIN perkara_putusan ON court_calendar.perkara_id = perkara_putusan.perkara_id LEFT JOIN perkara_mediasi ON court_calendar.perkara_id=perkara_mediasi.perkara_id LEFT JOIN perkara_panitera_pn ON court_calendar.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_putusan IS NULL AND (rencana_agenda NOT LIKE '%putusan%' AND rencana_agenda NOT LIKE '%penetapan%') AND (mediasi_id IS NULL OR keputusan_mediasi IS NOT NULL) AND perkara_panitera_pn.aktif = 'Y' ORDER BY court_calendar.perkara_id DESC`;
+    let query = `SELECT rencana_agenda, nomor_perkara, rencana_tanggal, panitera_nama FROM (SELECT MAX(id) AS id_cc, perkara_id FROM perkara_court_calendar GROUP BY perkara_id ORDER BY perkara_id DESC) AS court_calendar LEFT JOIN perkara ON court_calendar.perkara_id=perkara.perkara_id LEFT JOIN perkara_court_calendar ON   court_calendar.id_cc = perkara_court_calendar.id LEFT JOIN perkara_putusan ON court_calendar.perkara_id = perkara_putusan.perkara_id LEFT JOIN perkara_mediasi ON court_calendar.perkara_id=perkara_mediasi.perkara_id LEFT JOIN perkara_panitera_pn ON court_calendar.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_putusan IS NULL AND (rencana_agenda NOT LIKE '%putusan%' OR rencana_agenda NOT LIKE '%penetapan%') AND (mediasi_id IS NULL OR keputusan_mediasi IS NOT NULL) AND perkara_panitera_pn.aktif = 'Y' ORDER BY court_calendar.perkara_id DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -1000,7 +1000,7 @@ const getBelumEdocCourtCalendar = () => {
   });
 };
 
-getBelumEdocCourtCalendar().then((res) => console.log(res));
+// getBelumEdocCourtCalendar().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,

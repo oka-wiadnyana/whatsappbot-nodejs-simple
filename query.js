@@ -1,6 +1,7 @@
 // requiring dependencies
 const moment = require("moment");
 const axios = require("axios").default;
+const { MessageMedia } = require("whatsapp-web.js");
 const db = require("./db_config");
 
 //pool on connect
@@ -664,6 +665,11 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
 
       let responseMessage = message();
       resolve(responseMessage);
+    } else if (keyword[0] == "stiker") {
+      stiker().then((obj) => {
+        resolve(obj);
+      });
+      // resolve(stiker());
     } else {
       let responseMessage = `Silahkan ketik _Halo_ untuk memulai`;
       resolve(responseMessage);
@@ -969,6 +975,13 @@ const covid = async () => {
   console.log(msg);
 };
 
-covid();
+const stiker = async () => {
+  const media = await MessageMedia.fromUrl(
+    `https://upload.wikimedia.org/wikipedia/id/3/36/Naruto_Uzumaki.png`
+  );
+  media.filename = "naruto";
+  return media;
+};
+// stiker();
 // getStatistik(2021).then((res) => console.log(res));
 module.exports = getData;
