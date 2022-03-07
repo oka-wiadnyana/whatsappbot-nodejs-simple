@@ -3,6 +3,7 @@ const moment = require("moment");
 const axios = require("axios").default;
 const { MessageMedia } = require("whatsapp-web.js");
 const db = require("./db_config");
+const mis = require("./mis");
 
 //pool on connect
 db.on("connection", (connection) => console.log("CONNECTION USING POOL"));
@@ -438,11 +439,15 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
         } else {
           let responseMessage;
           if (result.length != 0) {
+            let link_baru = result[0].link_dirput.split(".");
+            let link2 = [link_baru[0] + "3"];
+            link_baru.shift();
+            let link_dirput = [...link2, ...link_baru].join(".");
             let linkPutusan = `No Perkara : ${
               result[0].nomor_perkara
             }, tanggal putusan : ${moment(result[0].tanggal_putusan).format(
               "D-M-YYYY"
-            )}, link : ${result[0].link_dirput}`;
+            )}, link : ${link_dirput}`;
 
             responseMessage = linkPutusan;
           } else {
@@ -666,10 +671,37 @@ Juga dapat diakses melalui https://eraterang.badilum.mahkamahgung.go.id`;
       let responseMessage = message();
       resolve(responseMessage);
     } else if (keyword[0] == "stiker") {
+      const stiker = async () => {
+        const media = MessageMedia.fromFilePath(
+          `./public/sticker/Naruto_Uzumaki.png`
+        );
+        media.filename = "naruto";
+        return media;
+        // console.log(media);
+      };
+
       stiker().then((obj) => {
         resolve(obj);
       });
       // resolve(stiker());
+    } else if (keyword[0] == "mis") {
+      const message = async () => {
+        let promiseMis = mis();
+        let messageMis = await promiseMis;
+        return messageMis;
+      };
+      let responseMessage = message();
+      resolve(responseMessage);
+    } else if (keyword[0] == "bhtcapil") {
+      let month = keyword[1];
+      let year = keyword[2];
+      const message = async () => {
+        let messageBhtCapil = await getBhtCapil(month, year);
+        // let messageMis = await promiseMis;
+        return messageBhtCapil;
+      };
+      let responseMessage = message();
+      resolve(responseMessage);
     } else {
       let responseMessage = `Silahkan ketik _Halo_ untuk memulai`;
       resolve(responseMessage);
@@ -975,13 +1007,44 @@ const covid = async () => {
   console.log(msg);
 };
 
-const stiker = async () => {
-  const media = await MessageMedia.fromUrl(
-    `https://upload.wikimedia.org/wikipedia/id/3/36/Naruto_Uzumaki.png`
-  );
-  media.filename = "naruto";
-  return media;
+const getBhtCapil = (month, year) => {
+  let query = `SELECT nomor_perkara, tanggal_putusan, tanggal_bht FROM perkara LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id WHERE tanggal_putusan IS NOT NULL AND  tanggal_bht IS NOT NULL  AND MONTH(tanggal_bht)=${month} AND YEAR(tanggal_bht)=${year} AND jenis_perkara_nama = 'Perceraian'`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, async (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `Nomor perkara : ${r.nomor_perkara}, tanggal putus : ${moment(
+                r.tanggal_putusan
+              ).format("D-M-YYYY")}, tanggal bht : ${moment(
+                r.tanggal_bht
+              ).format("D-M-YYYY")}`
+            );
+          });
+          responseMessage = resultArray.join(`\n`);
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
 };
+
+// const stiker = async () => {
+//   const media = MessageMedia.fromFilePath(
+//     `./public/sticker/Naruto_Uzumaki.png`
+//   );
+//   media.filename = "naruto";
+//   return media;
+//   console.log(media);
+// };
 // stiker();
 // getStatistik(2021).then((res) => console.log(res));
 module.exports = getData;
