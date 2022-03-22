@@ -32,7 +32,9 @@ if (fs.existsSync(SESSION_FILE_PATH)) {
 //inisiasi whatsapp
 const client = new Client({
   puppeteer: { headless: false },
-  session: sessionCfg,
+  // session is deprecated
+  // session: sessionCfg,
+  authStrategy: new LocalAuth(),
   qrTimeoutMs: 0,
 });
 // You can use an existing session and avoid scanning a QR code by adding a "session" object to the client options.
@@ -57,12 +59,12 @@ client.on("authenticated", (session) => {
   //saat diotentifikasi
   // console.log("AUTHENTICATED", session);
   console.log("AUTHENTICATED");
-  sessionCfg = session;
-  fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
-    if (err) {
-      console.error(err);
-    }
-  });
+  // sessionCfg = session;
+  // fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  // });
 });
 
 client.on("auth_failure", (msg) => {
