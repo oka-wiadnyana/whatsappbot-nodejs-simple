@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { Client, Location, List, Buttons } = require("whatsapp-web.js");
+const { Client, Location, List, Buttons, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const figlet = require("figlet");
 const cron = require("node-cron");
@@ -21,13 +21,6 @@ figlet("OKABOT", function (err, data) {
 
 // use this code for post request
 app.use(express.urlencoded({ extended: true }));
-
-//cari session agar tidak scan qr
-const SESSION_FILE_PATH = "./session.json";
-let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
-}
 
 //inisiasi whatsapp
 const client = new Client({
