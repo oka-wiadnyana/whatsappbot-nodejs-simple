@@ -223,7 +223,8 @@ client.on("disconnected", (reason) => {
   // Client on disconected
   console.log("Client was logged out", reason);
   if (reason == "NAVIGATION") {
-    fs.unlinkSync("./session.json");
+    fs.rmSync("./.wwebjs_auth", {recursive:true});
+
   }
 });
 
