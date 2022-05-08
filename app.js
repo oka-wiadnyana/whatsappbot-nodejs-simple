@@ -1,6 +1,9 @@
+const socketIO = require('socket.io');
+const qrcode = require('qrcode');
+const http = require('http');
 const fs = require("fs");
 const { Client, Location, List, Buttons, LocalAuth } = require("whatsapp-web.js");
-const qrcode = require("qrcode-terminal");
+const qrcode2 = require("qrcode-terminal");
 const figlet = require("figlet");
 const cron = require("node-cron");
 const getData = require("./query");
@@ -8,6 +11,11 @@ const groupNotif = require("./group-notif");
 const express = require("express");
 const app = express();
 const port = 3000;
+
+const server = http.createServer(app);
+const io = socketIO(server);
+
+
 
 // console log bot name
 figlet("OKABOT", function (err, data) {
@@ -21,10 +29,27 @@ figlet("OKABOT", function (err, data) {
 
 // use this code for post request
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+  res.sendFile('index.html', {
+    root: __dirname
+  });
+});
 
 //inisiasi whatsapp
 const client = new Client({
-  puppeteer: { headless: false },
+  puppeteer: { headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process', // <- this one doesn't works in Windows
+      '--disable-gpu'
+    ]},
   // session is deprecated
   // session: sessionCfg,
   authStrategy: new LocalAuth(),
@@ -40,35 +65,111 @@ const client = new Client({
 //    }
 // }
 
-client.initialize();
+// client.initialize();
 
-client.on("qr", (qr) => {
-  // NOTE: This event will not be fired if a session is specified.
-  // console.log("QR RECEIVED", qr);
-  qrcode.generate(qr, { small: true });
+io.on('connection', function(socket) {
+  socket.emit('message', 'Connecting...');
+
+  const path = './.wwebjs_auth/session/Default/Platform Notifications';
+
+  if (fs.existsSync(path)) {
+    socket.emit('message', 'Whatsapp has ready!');
+  }
+
+  client.on('qr', (qr) => {
+    console.log('QR RECEIVED', qr);
+    qrcode.toDataURL(qr, (err, url) => {
+      socket.emit('qr', url);
+      socket.emit('message', 'QR Code received, scan please!');
+    });
+  });
+
+  client.on('ready', () => {
+    socket.emit('ready', 'Whatsapp is ready!');
+    socket.emit('message', 'Whatsapp is ready!');
+  });
+
+  client.on('authenticated', () => {
+    socket.emit('authenticated', 'Whatsapp is authenticated!');
+    socket.emit('message', 'Whatsapp is authenticated!');
+    console.log('AUTHENTICATED');
+  });
+
+  client.on('auth_failure', function(session) {
+    socket.emit('message', 'Auth failure, restarting...');
+  });
+
+  client.on('disconnected', (reason) => {
+    socket.emit('message', 'Whatsapp is disconnected!');
+    client.destroy();
+    client.initialize();
+  });
+
+  socket.on('logout',function(data){
+    client.destroy().then(res=>{
+      fs.rm('./.wwebjs_auth', { recursive: true, force: true }, err => {
+        if (err) {
+          throw err;
+        }
+        socket.emit('message', 'Client has logout!');
+        console.log(`Client has logout!`);
+      })
+      
+    })
+  })
+
+  socket.on('login',function(data){
+    client.initialize();
+  })
+
+  client.on("message", async (msg) => {
+    // Pesan masuk dan keluar
+    let chat = await msg.getChat();
+    let message = msg.body.toLocaleLowerCase();
+    let id = msg.from;
+    socket.emit('message', `Checking message from ${id}`);
+    console.log(`Checking message from ${id}`);
+    if (chat.isGroup === false)
+      getData(message).then((res) => {
+        msg.reply(res);
+      });
+  });
 });
 
-client.on("authenticated", (session) => {
-  //saat diotentifikasi
-  // console.log("AUTHENTICATED", session);
-  console.log("AUTHENTICATED");
-  // sessionCfg = session;
-  // fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
-  //   if (err) {
-  //     console.error(err);
-  //   }
-  // });
-});
+// client.on("qr", (qr) => {
+//   // NOTE: This event will not be fired if a session is specified.
+//   // console.log("QR RECEIVED", qr);
+//   qrcode2.generate(qr, { small: true });
+// });
 
-client.on("auth_failure", (msg) => {
-  // Fired if session restore was unsuccessfull
-  console.error("AUTHENTICATION FAILURE", msg);
-});
+// client.on("authenticated", (session) => {
+//   //saat diotentifikasi
+//   // console.log("AUTHENTICATED", session);
+//   console.log("AUTHENTICATED");
+//   // sessionCfg = session;
+//   // fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
+//   //   if (err) {
+//   //     console.error(err);
+//   //   }
+//   // });
+// });
 
-client.on("ready", () => {
-  //saat wa sudah siap
-  console.log("READY");
-});
+// client.on("auth_failure", (msg) => {
+//   // Fired if session restore was unsuccessfull
+//   console.error("AUTHENTICATION FAILURE", msg);
+// });
+
+// client.on("ready", () => {
+//   //saat wa sudah siap
+//   console.log("READY");
+// });
+
+const checkRegisteredNumber = async function(number) {
+  const isRegistered = await client.isRegisteredUser(number);
+  return isRegistered;
+}
+
+const groupId='120363039408496373@g.us';
 
 // first notif function
 const sendGroupFirst = async () => {
@@ -126,7 +227,7 @@ const sendGroupFirst = async () => {
 
 cron.schedule("15 8 * * *", () => {
   sendGroupFirst().then((res) => {
-    client.sendMessage("120363039408496373@g.us", res);
+    client.sendMessage(groupId, res);
   });
 });
 
@@ -192,21 +293,11 @@ const sendGroupSecond = async () => {
 // second notif
 cron.schedule("15 15 * * *", () => {
   sendGroupSecond().then((res) => {
-    client.sendMessage("120363039408496373@g.us", res);
+    client.sendMessage(groupId, res);
   });
 });
 
-client.on("message", async (msg) => {
-  // Pesan masuk dan keluar
-  let chat = await msg.getChat();
-  let message = msg.body.toLocaleLowerCase();
-  let id = msg.from;
-  console.log(`Checking message from ${id}`);
-  if (chat.isGroup === false)
-    getData(message).then((res) => {
-      msg.reply(res);
-    });
-});
+
 
 client.on("change_battery", (batteryInfo) => {
   // Battery percentage for attached device has changed
@@ -221,18 +312,25 @@ client.on("change_state", (state) => {
 
 client.on("disconnected", (reason) => {
   // Client on disconected
-  console.log("Client was logged out", reason);
-  if (reason == "NAVIGATION") {
-    fs.rmSync("./.wwebjs_auth", {recursive:true});
-
-  }
+  client.destroy();
+  client.initialize();
 });
 
 // whatsapp api
-app.post("/send-message", (req, res) => {
+app.post("/send-message", async(req, res) => {
   let numberRaw = req.body.number;
   let numberId = `62${numberRaw.substring(1, 20)}@c.us`;
   let message = req.body.message;
+
+  const isRegisteredNumber = await checkRegisteredNumber(numberId);
+
+  if (!isRegisteredNumber) {
+    return res.status(422).json({
+      status: false,
+      message: 'The number is not registered'
+    });
+  }
+
   client
     .sendMessage(numberId, message)
     .then((response) => {
@@ -249,10 +347,20 @@ app.post("/send-message", (req, res) => {
     });
 });
 
-app.get("/send-message/:number/:message", (req, res) => {
+app.get("/send-message/:number/:message", async (req, res) => {
   let numberRaw = req.params.number;
   let numberId = `62${numberRaw.substring(1, 20)}@c.us`;
   let message = req.params.message;
+
+  const isRegisteredNumber = await checkRegisteredNumber(numberId);
+
+  if (!isRegisteredNumber) {
+    return res.status(422).json({
+      status: false,
+      message: 'The number is not registered'
+    });
+  }
+
   client
     .sendMessage(numberId, message)
     .then((response) => {
@@ -269,6 +377,6 @@ app.get("/send-message/:number/:message", (req, res) => {
     });
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`OKABOT listening at port ${port}`);
 });

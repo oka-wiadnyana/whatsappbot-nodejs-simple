@@ -15,14 +15,14 @@ Langkah-langkah penggunaan :
 5. Selanjutnya jalankan perintah 
    > $ node app
 
-   pada terminal, kemudian scan barcode Whatsapp dengan Smartphone yang akan digunakan pada chromium atau terminal, dan Whatsapp bot siap digunakan
+   silahkan buka browser, dan ketikkan http://localhost:(port)
  
  ### Kustomisasi Pesan dan Database
  Untuk mengkostumisasi pesan respon, silahkan ubah di file **query.js**, dan untuk merubah koneksi ke database silahkan ubah pada file **db_config.js**.
  **Penting : Sangat disarankan untuk menggunakan _clone_ Database SIPP**
 
  ### Notifikasi ke Group Whatsapp
- Bot ini juga menyediakan fitur notifikasi group. Untuk menggunakannya, silahkan tambahkan kontak bot ke grup whatsapp, selanjutnya perhatikan id group whatsapp pada terminal (didapatkan setelah ada pesan masuk di grup). ID grup berakhiran dengan ...@g.us. Silahkan replace pada file app.js baris ke 114. Notifikasi yang 
+ Bot ini juga menyediakan fitur notifikasi group. Untuk menggunakannya, silahkan tambahkan kontak bot ke grup whatsapp, selanjutnya perhatikan id group whatsapp pada terminal (didapatkan setelah ada pesan masuk di grup). ID grup berakhiran dengan ...@g.us. Silahkan replace pada variabel groupId. Notifikasi yang 
  dikirimkan antara lain :
 
  * Data penahanan yang akan habis dalam 10 hari
@@ -30,7 +30,7 @@ Langkah-langkah penggunaan :
  * Putusan yang belum diberitahukan
  * BA yang belum diupload, dll
 
-Default jadwal notifikasi adalah pukul 08.00 Pagi setiap hari, untuk merubahnya, silahkan ganti pada baris ke 112
+Default jadwal notifikasi adalah pukul 08.15  dan 15.15 setiap hari, untuk merubahnya, silahkan ganti pada baris ke script node cron
 
 ### API
 
