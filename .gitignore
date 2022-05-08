@@ -3,3 +3,5 @@ node_modules/
 
 #ignore session
 session.json
+
+.wwebjs_auth/
