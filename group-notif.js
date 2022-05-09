@@ -24,7 +24,7 @@ const getDataPenahanan = () => {
         LEFT JOIN perkara_putusan ON custom.id = perkara_putusan.perkara_id
       WHERE
         tanggal_akhir >= CURDATE()
-        AND tanggal_akhir <= DATE_ADD(CURDATE(),INTERVAL 10 DAY)
+        AND tanggal_akhir <= DATE_ADD(CURDATE(),INTERVAL 15 DAY)
         AND tanggal_putusan IS NULL`;
 
     db.query(query, (err, result) => {
@@ -1000,7 +1000,114 @@ const getBelumEdocCourtCalendar = () => {
   });
 };
 
-// getBelumEdocCourtCalendar().then((res) => console.log(res));
+const getDataBanding = () => {
+  let query = `SELECT nomor_perkara_pn, permohonan_banding,  alur_perkara_id FROM v_perkara_banding WHERE pengiriman_berkas_banding IS NULL AND tanggal_cabut IS NULL`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, async (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            let jangka_waktu=0;
+            if(r.alur_perkara_id==111) {
+              jangka_waktu=14;
+            }else if (r.alur_perkara_id==1 || r.alur_perkara_id==7)   {
+              jangka_waktu=30;
+            }
+            let tanggal_kirim = moment(r.permohonan_banding).add(jangka_waktu,'d');
+            resultArray.push(
+              `Nomor perkara : ${r.nomor_perkara_pn}, tanggal banding : ${moment(
+                r.permohonan_banding
+              ).format("D-M-YYYY")}, tanggal terakhir pengiriman = ${moment(tanggal_kirim).format("D-M-YYYY")}`
+            );
+          });
+          responseMessage = resultArray.join(`\n`);
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getDataKasasi = () => {
+  let query = `SELECT nomor_perkara_pn, permohonan_kasasi, alur_perkara_id FROM perkara_kasasi WHERE pengiriman_berkas_kasasi IS NULL AND tanggal_cabut IS NULL AND YEAR(permohonan_kasasi)>2021`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, async (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            let tanggal_kirim = moment(r.permohonan_kasasi).add(30,'d');
+            resultArray.push(
+              `Nomor perkara : ${r.nomor_perkara_pn}, tanggal kasasi : ${moment(
+                r.permohonan_kasasi
+              ).format("D-M-YYYY")}, tanggal terakhir pengiriman = ${moment(tanggal_kirim).format("D-M-YYYY")}`
+            );
+          });
+          responseMessage = resultArray.join(`\n`);
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getDataPK = () => {
+  let query = `SELECT nomor_perkara_pn, permohonan_pk, alur_perkara_id, pendapat_hakim, penyerahan_kontra_pk FROM perkara_pk WHERE pengiriman_berkas_pk IS NULL AND tanggal_cabut IS NULL AND tidak_memenuhi_syarat IS NULL`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, async (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            let tanggal_kirim;
+            if(r.alur_perkara_id==111) {
+              
+              if(r.pendapat_hakim==null) {
+              tanggal_kirim='Pendapat Hakim belum diisi';
+              }else{
+                tanggal_kirim=`tanggal terakhir pengiriman = ${moment(moment(r.pendapat_hakim).add(30,'d')).format(("D-M-YYYY"))}`;
+              }
+            }else if (r.alur_perkara_id==1 || r.alur_perkara_id==7)   {
+              if(r.pendapat_hakim==null) {
+                tanggal_kirim='Kontra memori PK belum diterima';
+                }else{
+                  tanggal_kirim=`tanggal terakhir pengiriman = ${moment(moment(r.penyerahan_kontra_pk).add(30,'d')).format(("D-M-YYYY"))}`;
+                }
+            }
+            
+            resultArray.push(
+              `Nomor perkara : ${r.nomor_perkara_pn}, tanggal pk : ${moment(
+                r.permohonan_pk
+              ).format("D-M-YYYY")}, ${tanggal_kirim}`
+            );
+          });
+          responseMessage = resultArray.join(`\n`);
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+getDataBanding().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -1023,4 +1130,7 @@ module.exports = {
   getBelumBhtKasasi,
   getBelumPanggilan,
   getBelumEdocCourtCalendar,
+  getDataBanding,
+  getDataKasasi,
+  getDataPK,
 };
