@@ -1107,7 +1107,69 @@ const getDataPK = () => {
     });
   });
 };
-getDataBanding().then((res) => console.log(res));
+
+const getDataEdocPetitum = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=2022 AND (alur_perkara_id =1 OR alur_perkara_id =2 OR alur_perkara_id =8 ) AND petitum_dok = " "`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `Nomor perkara : ${
+                r.nomor_perkara
+              }, 'Tanggal pendaftaran : ${moment(r.tanggal_pendaftaran).format(
+                "D-M-YYYY"
+              )}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getDataEdocDakwaan = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=2022 AND (alur_perkara_id =111 OR alur_perkara_id =112 OR alur_perkara_id =113 OR alur_perkara_id =118 ) AND dakwaan_dok = " "`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `Nomor perkara : ${
+                r.nomor_perkara
+              }, 'Tanggal pendaftaran : ${moment(r.tanggal_pendaftaran).format(
+                "D-M-YYYY"
+              )}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+
+// getDataEdocDakwaan().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -1133,4 +1195,6 @@ module.exports = {
   getDataBanding,
   getDataKasasi,
   getDataPK,
+  getDataEdocPetitum,
+  getDataEdocDakwaan
 };
