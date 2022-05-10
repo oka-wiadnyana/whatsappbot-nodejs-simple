@@ -72,6 +72,7 @@ io.on('connection', function(socket) {
   socket.emit('message', 'Connecting...');
 
   const path = './.wwebjs_auth/session/Default/Platform Notifications';
+  const adminID= '6281337320205@c.us';
 
   if (fs.existsSync(path)) {
     socket.emit('message', 'Whatsapp has ready!');
@@ -92,8 +93,9 @@ io.on('connection', function(socket) {
     socket.emit('ready', 'Whatsapp is ready!');
     socket.emit('message', 'Whatsapp is ready!');
     console.log('READY');
-    let adminID= '6281337320205@c.us';
-    client.sendMessage(adminID,'Whatsapp bot ready!')
+   
+    client.sendMessage(adminID,'Whatsapp bot ready!');
+    console.log('READY');
   });
 
   client.on('authenticated', () => {
@@ -107,8 +109,9 @@ io.on('connection', function(socket) {
   });
 
   client.on('disconnected', (reason) => {
-    socket.emit('message', 'Whatsapp is disconnected!');
-    client.destroy();
+    socket.emit('message', `Whatsapp disconnected ${reason}`);
+    client.sendMessage(adminID,`Whatsapp disconnected ${reason}`);
+    console.log(`Whatsapp disconnected ${reason}`);
     client.initialize();
   });
 
@@ -333,11 +336,11 @@ client.on("change_state", (state) => {
   console.log("CHANGE STATE", state);
 });
 
-client.on("disconnected", (reason) => {
-  // Client on disconected
-  client.destroy();
-  client.initialize();
-});
+// client.on("disconnected", (reason) => {
+//   // Client on disconected
+//   client.destroy();
+//   client.initialize();
+// });
 
 // whatsapp api
 app.post("/send-message", async(req, res) => {
