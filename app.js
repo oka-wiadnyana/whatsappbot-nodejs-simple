@@ -76,6 +76,8 @@ io.on('connection', function(socket) {
   if (fs.existsSync(path)) {
     socket.emit('message', 'Whatsapp has ready!');
     // client.initialize();
+  }else {
+    socket.emit('message', 'Wait for qr code to show up!');
   }
 
   client.on('qr', (qr) => {
@@ -89,6 +91,9 @@ io.on('connection', function(socket) {
   client.on('ready', () => {
     socket.emit('ready', 'Whatsapp is ready!');
     socket.emit('message', 'Whatsapp is ready!');
+    console.log('READY');
+    let adminID= '6281337320205@c.us';
+    client.sendMessage(adminID,'Whatsapp bot ready!')
   });
 
   client.on('authenticated', () => {
