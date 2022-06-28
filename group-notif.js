@@ -1109,8 +1109,9 @@ const getDataPK = () => {
 };
 
 const getDataEdocPetitum = () => {
+  
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=2022 AND (alur_perkara_id =1 OR alur_perkara_id =2 OR alur_perkara_id =8 ) AND petitum_dok = " "`;
+    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=YEAR(CURDATE()) AND (alur_perkara_id =1 OR alur_perkara_id =2 OR alur_perkara_id =8 ) AND petitum_dok = " "`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -1140,7 +1141,7 @@ const getDataEdocPetitum = () => {
 
 const getDataEdocDakwaan = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=2022 AND (alur_perkara_id =111 OR alur_perkara_id =112 OR alur_perkara_id =113 OR alur_perkara_id =118 ) AND dakwaan_dok = " "`;
+    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=YEAR(CURDATE()) AND (alur_perkara_id =111 OR alur_perkara_id =112 OR alur_perkara_id =113 OR alur_perkara_id =118 ) AND dakwaan_dok = " "`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -1168,8 +1169,69 @@ const getDataEdocDakwaan = () => {
   });
 };
 
+const getDataEdocAnonimisasi = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT nomor_perkara, tanggal_putusan FROM perkara_putusan LEFT JOIN perkara ON perkara_putusan.perkara_id = perkara.perkara_id WHERE YEAR(tanggal_putusan)=YEAR(CURDATE()) AND tanggal_putusan IS NOT NULL AND (jenis_perkara_nama = "Perceraian" OR jenis_perkara_nama = "Permohonan Pengangkatan Anak" OR jenis_perkara_nama = "Wasiat" OR jenis_perkara_nama = "Kejahatan Terhadap Kesusilaan" OR jenis_perkara_nama = "Kekerasan Dalam Rumah Tangga" OR alur_perkara_id =118) AND amar_putusan_anonimisasi_dok IS NULL`;
 
-// getDataEdocDakwaan().then((res) => console.log(res));
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `Nomor perkara : ${
+                r.nomor_perkara
+              }, 'Tanggal putusan : ${moment(r.tanggal_putusan).format(
+                "D-M-YYYY"
+              )}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+const getDataBelumDelegasi = () => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT delegasi_masuk.id, nomor_perkara, tgl_relaas, delegasi_masuk.diinput_tanggal FROM delegasi_masuk LEFT JOIN delegasi_proses_masuk ON delegasi_masuk.id=delegasi_proses_masuk.delegasi_id WHERE YEAR(delegasi_masuk.diinput_tanggal) > 2022 AND (tgl_relaas IS NULL OR tgl_relaas = "")  ORDER BY delegasi_masuk.id DESC`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        let responseMessage;
+       
+        if (result.length != 0) {
+          let resultArray = [];
+          result.forEach((r) => {
+            resultArray.push(
+              `Nomor perkara : ${
+                r.nomor_perkara
+              }, 'Tanggal masuk : ${moment(r.diinput_tanggal).format(
+                "D-M-YYYY"
+              )}`
+            );
+          });
+          responseMessage = resultArray.join("\n");
+        } else {
+          responseMessage = `Tidak ada data`;
+        }
+        resolve(responseMessage);
+      }
+    });
+  });
+};
+
+
+// getDataBelumDelegasi().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -1196,5 +1258,7 @@ module.exports = {
   getDataKasasi,
   getDataPK,
   getDataEdocPetitum,
-  getDataEdocDakwaan
+  getDataEdocDakwaan,
+  getDataEdocAnonimisasi,
+  getDataBelumDelegasi,
 };

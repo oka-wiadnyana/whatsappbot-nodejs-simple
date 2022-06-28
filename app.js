@@ -1,8 +1,14 @@
-const socketIO = require('socket.io');
-const qrcode = require('qrcode');
-const http = require('http');
+const socketIO = require("socket.io");
+const qrcode = require("qrcode");
+const http = require("http");
 const fs = require("fs");
-const { Client, Location, List, Buttons, LocalAuth } = require("whatsapp-web.js");
+const {
+  Client,
+  Location,
+  List,
+  Buttons,
+  LocalAuth,
+} = require("whatsapp-web.js");
 const qrcode2 = require("qrcode-terminal");
 const figlet = require("figlet");
 const cron = require("node-cron");
@@ -16,8 +22,6 @@ const port = 3000;
 const server = http.createServer(app);
 const io = socketIO(server);
 
-
-
 // console log bot name
 figlet("OKABOT", function (err, data) {
   if (err) {
@@ -30,27 +34,29 @@ figlet("OKABOT", function (err, data) {
 
 // use this code for post request
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-app.get('/', (req, res) => {
-  res.sendFile('index.html', {
-    root: __dirname
+app.get("/", (req, res) => {
+  res.sendFile("index.html", {
+    root: __dirname,
   });
 });
 
 //inisiasi whatsapp
 const client = new Client({
-  puppeteer: { headless: true,
+  puppeteer: {
+    headless: false,
     args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process', // <- this one doesn't works in Windows
-      '--disable-gpu'
-    ]},
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--single-process", // <- this one doesn't works in Windows
+      "--disable-gpu",
+    ],
+  },
   // session is deprecated
   // session: sessionCfg,
   authStrategy: new LocalAuth(),
@@ -68,76 +74,75 @@ const client = new Client({
 
 client.initialize();
 
-io.on('connection', function(socket) {
-  socket.emit('message', 'Connecting...');
+io.on("connection", function (socket) {
+  socket.emit("message", "Connecting...");
 
-  const path = './.wwebjs_auth/session/Default/Platform Notifications';
-  const adminID= '6281337320205@c.us';
+  const path = "./.wwebjs_auth/session/Default/Platform Notifications";
+  const adminID = "6281337320205@c.us";
 
   if (fs.existsSync(path)) {
-    socket.emit('message', 'Whatsapp has ready!');
+    socket.emit("message", "Whatsapp has ready!");
     // client.initialize();
-  }else {
-    socket.emit('message', 'Wait for qr code to show up!');
+  } else {
+    socket.emit("message", "Wait for qr code to show up!");
   }
 
-  client.on('qr', (qr) => {
-    console.log('QR RECEIVED', qr);
+  client.on("qr", (qr) => {
+    console.log("QR RECEIVED", qr);
     qrcode.toDataURL(qr, (err, url) => {
-      socket.emit('qr', url);
-      socket.emit('message', 'QR Code received, scan please!');
+      socket.emit("qr", url);
+      socket.emit("message", "QR Code received, scan please!");
     });
   });
 
-  client.on('ready', () => {
-    socket.emit('ready', 'Whatsapp is ready!');
-    socket.emit('message', 'Whatsapp is ready!');
-    console.log('READY');
-   
-    client.sendMessage(adminID,'Whatsapp bot ready!');
-    console.log('READY');
+  client.on("ready", () => {
+    socket.emit("ready", "Whatsapp is ready!");
+    socket.emit("message", "Whatsapp is ready!");
+    console.log("READY");
+
+    client.sendMessage(adminID, "Whatsapp bot ready!");
+    console.log("READY");
   });
 
-  client.on('authenticated', () => {
-    socket.emit('authenticated', 'Whatsapp is authenticated!');
-    socket.emit('message', 'Whatsapp is authenticated!');
-    console.log('AUTHENTICATED');
+  client.on("authenticated", () => {
+    socket.emit("authenticated", "Whatsapp is authenticated!");
+    socket.emit("message", "Whatsapp is authenticated!");
+    console.log("AUTHENTICATED");
   });
 
-  client.on('auth_failure', function(session) {
-    socket.emit('message', 'Auth failure, restarting...');
+  client.on("auth_failure", function (session) {
+    socket.emit("message", "Auth failure, restarting...");
   });
 
-  client.on('disconnected', (reason) => {
-    socket.emit('message', `Whatsapp disconnected ${reason}`);
-    client.sendMessage(adminID,`Whatsapp disconnected ${reason}`);
+  client.on("disconnected", (reason) => {
+    socket.emit("message", `Whatsapp disconnected ${reason}`);
+    client.sendMessage(adminID, `Whatsapp disconnected ${reason}`);
     console.log(`Whatsapp disconnected ${reason}`);
     client.initialize();
   });
 
-  socket.on('logout',function(data){
-    client.destroy().then(res=>{
-      fs.rm('./.wwebjs_auth', { recursive: true, force: true }, err => {
+  socket.on("logout", function (data) {
+    client.destroy().then((res) => {
+      fs.rm("./.wwebjs_auth", { recursive: true, force: true }, (err) => {
         if (err) {
           throw err;
         }
-        socket.emit('message', 'Client has logout!');
+        socket.emit("message", "Client has logout!");
         console.log(`Client has logout!`);
-      })
-      
-    })
-  })
+      });
+    });
+  });
 
-  socket.on('login',function(data){
+  socket.on("login", function (data) {
     client.initialize();
-  })
+  });
 
   client.on("message", async (msg) => {
     // Pesan masuk dan keluar
     let chat = await msg.getChat();
     let message = msg.body.toLocaleLowerCase();
     let id = msg.from;
-    socket.emit('message', `Checking message from ${id}`);
+    socket.emit("message", `Checking message from ${id}`);
     console.log(`Checking message from ${id}`);
     if (chat.isGroup === false)
       getData(message).then((res) => {
@@ -174,12 +179,12 @@ io.on('connection', function(socket) {
 //   console.log("READY");
 // });
 
-const checkRegisteredNumber = async function(number) {
+const checkRegisteredNumber = async function (number) {
   const isRegistered = await client.isRegisteredUser(number);
   return isRegistered;
-}
+};
 
-const groupId='120363023416509037@g.us';
+const groupId = "120363023416509037@g.us";
 
 // first notif function
 const sendGroupFirst = async () => {
@@ -237,8 +242,12 @@ const sendGroupFirst = async () => {
     let messageDataPetitum = await promiseDataPetitum;
     let promiseDataDakwaan = groupNotif.getDataEdocDakwaan();
     let messageDataDakwaan = await promiseDataDakwaan;
+    let promiseDataEdocAnonimisasi = groupNotif.getDataEdocAnonimisasi();
+    let messageDataAnonimisasi = await promiseDataEdocAnonimisasi;
+    let promiseDataBelumDelegasi = groupNotif.getDataBelumDelegasi();
+    let messageDataBelumDelegasi = await promiseDataBelumDelegasi;
 
-    let msg = `*Data dari pesan ini diambil dari database SIPP dan hanya sebagai pengingat. _Data perkara yang muncul tidak selalu karena belum diinput, namun juga  karena masih sedang dalam proses (dalam waktu yang masih dibenarkan)_* \n\n*Statistik Penanganan Perkara Tahun ini (tidak termasuk perkara tilang)  :* \n${messageStatistik} \n\n*Data penahanan yang habis dalam 15 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara banding yang belum berisi tanggal BHT* : \n${messageBelumBhtBanding} \n\n*Data perkara kasasi yang belum berisi tanggal BHT* : \n${messageBelumBhtKasasi} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Data banding belum dikirim* : \n${messageDataBanding} \n\n*Data kasasi belum dikirm* : \n${messageDataKasasi} \n\n*Data PK belum dikirim* : \n${messageDataPK} \n\n*Perkara Perdata belum berisi Edoc Petitum* : \n${messageDataPetitum} \n\n*Perkara Pidana belum berisi Edoc Dakwaan* : \n${messageDataDakwaan}   \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Panggilan belum dilaksanakan/Relas belum diupload* : \n${messageBelumPanggilan} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar} \n\n*Edoc court calendar belum upload* : \n${messageBelumEdocCC}`;
+    let msg = `*Data dari pesan ini diambil dari database SIPP dan hanya sebagai pengingat. _Data perkara yang muncul tidak selalu karena belum diinput, namun juga  karena masih sedang dalam proses (dalam waktu yang masih dibenarkan)_* \n\n*Statistik Penanganan Perkara Tahun ini (tidak termasuk perkara tilang)  :* \n${messageStatistik} \n\n*Data delegasi belum dilaksanakan* : \n${messageDataBelumDelegasi} \n\n*Data penahanan yang habis dalam 15 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara banding yang belum berisi tanggal BHT* : \n${messageBelumBhtBanding} \n\n*Data perkara kasasi yang belum berisi tanggal BHT* : \n${messageBelumBhtKasasi} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Data banding belum dikirim* : \n${messageDataBanding} \n\n*Data kasasi belum dikirm* : \n${messageDataKasasi} \n\n*Data PK belum dikirim* : \n${messageDataPK} \n\n*Perkara Perdata belum berisi Edoc Petitum* : \n${messageDataPetitum} \n\n*Perkara Pidana belum berisi Edoc Dakwaan* : \n${messageDataDakwaan} \n\n*Perkara Putusan Belum Anonimisasi* : \n${messageDataAnonimisasi}   \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Panggilan belum dilaksanakan/Relas belum diupload* : \n${messageBelumPanggilan} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar} \n\n*Edoc court calendar belum upload* : \n${messageBelumEdocCC}`;
     return msg;
   } catch (error) {
     console.log(error);
@@ -308,8 +317,12 @@ const sendGroupSecond = async () => {
     let messageDataPetitum = await promiseDataPetitum;
     let promiseDataDakwaan = groupNotif.getDataEdocDakwaan();
     let messageDataDakwaan = await promiseDataDakwaan;
+    let promiseDataEdocAnonimisasi = groupNotif.getDataEdocAnonimisasi();
+    let messageDataAnonimisasi = await promiseDataEdocAnonimisasi;
+    let promiseDataBelumDelegasi = groupNotif.getDataBelumDelegasi();
+    let messageDataBelumDelegasi = await promiseDataBelumDelegasi;
 
-    let msg = `*Data dari pesan ini diambil dari database SIPP dan hanya sebagai pengingat. _Data perkara yang muncul tidak selalu karena belum diinput, namun juga  karena masih sedang dalam proses (dalam waktu yang masih dibenarkan)_* \n\n*Statistik Penanganan Perkara Tahun ini (tidak termasuk perkara tilang)  :* \n${messageStatistik} \n\n*Data penahanan yang habis dalam 15 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara banding yang belum berisi tanggal BHT* : \n${messageBelumBhtBanding} \n\n*Data perkara kasasi yang belum berisi tanggal BHT* : \n${messageBelumBhtKasasi} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Data banding belum dikirim* : \n${messageDataBanding} \n\n*Data kasasi belum dikirm* : \n${messageDataKasasi} \n\n*Data PK belum dikirim* : \n${messageDataPK}  \n\n*Perkara Perdata belum berisi Edoc Petitum* : \n${messageDataPetitum} \n\n*Perkara Pidana belum berisi Edoc Dakwaan* : \n${messageDataDakwaan} \n\n*Perkara yang belum dilakukan penundaan* : \n${messageTundaJadwalSidang} \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Panggilan belum dilaksanakan/Relas belum diupload* : \n${messageBelumPanggilan} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar} \n\n*Edoc court calendar belum upload* : \n${messageBelumEdocCC}`;
+    let msg = `*Data dari pesan ini diambil dari database SIPP dan hanya sebagai pengingat. _Data perkara yang muncul tidak selalu karena belum diinput, namun juga  karena masih sedang dalam proses (dalam waktu yang masih dibenarkan)_* \n\n*Statistik Penanganan Perkara Tahun ini (tidak termasuk perkara tilang)  :* \n${messageStatistik} \n\n*Data delegasi belum dilaksanakan* : \n${messageDataBelumDelegasi} \n\n*Data penahanan yang habis dalam 15 hari* : \n${messagePenahanan} \n\n*Data Putusan yang belum diminutasi* : \n${messagePutusanBelumMinut} \n\n*Data perkara pidana yang belum berisi tanggal BHT* : \n${messageBelumBhtPidana} \n\n*Data perkara perdata yang belum berisi tanggal BHT* : \n${messageBelumBhtPerdata} \n\n*Data perkara banding yang belum berisi tanggal BHT* : \n${messageBelumBhtBanding} \n\n*Data perkara kasasi yang belum berisi tanggal BHT* : \n${messageBelumBhtKasasi} \n\n*Data perkara yang data saksi tidak lengkap* : \n${messageSaksiTidakLengkap} \n\n*Data perkara sudah putus yang belum diberitahukan* : \n${messagePutusanBelumBeritahu} \n\n*Data banding belum dikirim* : \n${messageDataBanding} \n\n*Data kasasi belum dikirm* : \n${messageDataKasasi} \n\n*Data PK belum dikirim* : \n${messageDataPK}  \n\n*Perkara Perdata belum berisi Edoc Petitum* : \n${messageDataPetitum} \n\n*Perkara Pidana belum berisi Edoc Dakwaan* : \n${messageDataDakwaan} \n\n*Perkara Putusan Belum Anonimisasi* : \n${messageDataAnonimisasi} \n\n*Perkara yang belum dilakukan penundaan* : \n${messageTundaJadwalSidang} \n\n*Jadwal sidang pidana hari ini* : \n${messageJadwalSidangPidana} \n\n*Jadwal sidang perdata hari ini* : \n${messageJadwalSidangPerdata} \n\n*Jadwal mediasi hari ini* : \n${messageJadwalMediasi} \n\n*Panggilan belum dilaksanakan/Relas belum diupload* : \n${messageBelumPanggilan} \n\n*Sisa panjar perkara tingkat pertama yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarPn} \n\n*Sisa panjar perkara tingkat banding yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarBanding} \n\n*Sisa panjar perkara tingkat kasasi yang telah putus dan belum dikembalikan* : \n${messageSisaPanjarKasasi} \n\n*Data perkara yang belum upload BA* : \n${messageBA} \n\n*Data perkara yang belum diserahkan ke bagian hukum* : \n${messageBelumSerahHukum} \n\n*Data perkara yang belum belum terdapat data court calendar sampai putusan/penetapan* : \n${messageDataCourtCalendar} \n\n*Edoc court calendar belum upload* : \n${messageBelumEdocCC}`;
     return msg;
   } catch (error) {
     console.log(error);
@@ -322,8 +335,6 @@ cron.schedule("15 15 * * *", () => {
     client.sendMessage(groupId, res);
   });
 });
-
-
 
 client.on("change_battery", (batteryInfo) => {
   // Battery percentage for attached device has changed
@@ -343,7 +354,7 @@ client.on("change_state", (state) => {
 // });
 
 // whatsapp api
-app.post("/send-message", async(req, res) => {
+app.post("/send-message", async (req, res) => {
   let numberRaw = req.body.number;
   let numberId = `62${numberRaw.substring(1, 20)}@c.us`;
   let message = req.body.message;
@@ -353,7 +364,7 @@ app.post("/send-message", async(req, res) => {
   if (!isRegisteredNumber) {
     return res.status(422).json({
       status: false,
-      message: 'The number is not registered'
+      message: "The number is not registered",
     });
   }
 
@@ -383,7 +394,7 @@ app.get("/send-message/:number/:message", async (req, res) => {
   if (!isRegisteredNumber) {
     return res.status(422).json({
       status: false,
-      message: 'The number is not registered'
+      message: "The number is not registered",
     });
   }
 
