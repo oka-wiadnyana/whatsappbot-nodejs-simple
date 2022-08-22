@@ -14,6 +14,7 @@ Langkah-langkah penggunaan :
 5. Penginstallan dependencies akan memakan waktu cukup lama tergantung koneksi internet, pastikan agar pengunduhan selesai.
 5. Selanjutnya jalankan perintah 
    > $ node app
+   atau gunakan node js proccess manager untuk menjalankan aplikasi agar bisa restart otomatis apabila terjadi crash, seperti [supervisor](https://www.npmjs.com/package/supervisor)
 
    silahkan buka browser, dan ketikkan http://localhost:(port)
  
@@ -25,6 +26,7 @@ Langkah-langkah penggunaan :
  Bot ini juga menyediakan fitur notifikasi group. Untuk menggunakannya, silahkan tambahkan kontak bot ke grup whatsapp, selanjutnya perhatikan id group whatsapp pada terminal (didapatkan setelah ada pesan masuk di grup). ID grup berakhiran dengan ...@g.us. Silahkan replace pada variabel groupId. Notifikasi yang 
  dikirimkan antara lain :
 
+* Scrapping EIS
  * Data penahanan yang akan habis dalam 10 hari
  * Putusan yang belum diminutasi
  * Putusan yang belum diberitahukan
@@ -35,6 +37,8 @@ Default jadwal notifikasi adalah pukul 08.15  dan 15.15 setiap hari, untuk merub
 ### API
 
  Untuk menggunakan api silahkan hit ke : http://domainanda.com:port/send-message/nomor_tujuan(format 081xxxx)/pesan_anda (_versi beta, karena baru dites pada localhost_)
+
+ 
 
    Feel free to contact me :
 
