@@ -14,9 +14,10 @@ Langkah-langkah penggunaan :
 5. Penginstallan dependencies akan memakan waktu cukup lama tergantung koneksi internet, pastikan agar pengunduhan selesai.
 5. Selanjutnya jalankan perintah 
    > $ node app
+   
    atau gunakan node js proccess manager untuk menjalankan aplikasi agar bisa restart otomatis apabila terjadi crash, seperti [supervisor](https://www.npmjs.com/package/supervisor)
 
-   silahkan buka browser, dan ketikkan http://localhost:(port)
+6. silahkan buka browser, dan ketikkan http://localhost:(port)
  
  ### Kustomisasi Pesan dan Database
  Untuk mengkostumisasi pesan respon, silahkan ubah di file **query.js**, dan untuk merubah koneksi ke database silahkan ubah pada file **db_config.js**.
