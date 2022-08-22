@@ -11,8 +11,8 @@ db.on("connection", (connection) => console.log("CONNECTION USING POOL"));
 // inisiasi pesan masuk
 const getData = (message) => {
   let keyword = message.split("#");
-  let pengadilan = "Pengadilan Negeri Bangli";
-  let web = "https://pn-bangli.go.id";
+  let pengadilan = "Pengadilan Negeri Negara";
+  let web = "https://pn-negara.go.id";
   return new Promise((resolve, reject) => {
     // mulai logic pesan
     if (keyword[0] == "halo") {
@@ -821,7 +821,7 @@ const getJadwalSidangPerdata = (tanggal = null) => {
         if (result.length != 0) {
           let resultArray = [];
           result.forEach((r) => {
-            if (r.pihak2_text === "") {
+            if (r.pihak2_text === "" || r.pihak2_text === null) {
               resultArray.push(
                 `No Perkara : ${r.nomor_perkara}, agenda : ${
                   r.agenda

@@ -143,7 +143,7 @@ const getDataBelumBhtPidana = () => {
 
 const getDataBelumBhtPerdata = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, v_perkara_detil.tanggal_putusan,v_perkara_detil.tanggal_minutasi,panitera_nama FROM v_perkara_detil  LEFT JOIN perkara_putusan ON v_perkara_detil.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON v_perkara_detil.perkara_id=perkara_panitera_pn.perkara_id WHERE v_perkara_detil.tanggal_putusan IS NOT NULL AND v_perkara_detil.tanggal_minutasi IS NOT NULL AND perkara_putusan.tanggal_bht IS NULL AND permohonan_banding IS NULL AND permohonan_kasasi IS NULL AND YEAR(v_perkara_detil.tanggal_putusan)>=2019  AND (((alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8) AND v_perkara_detil.tanggal_minutasi <= CURDATE())) AND perkara_panitera_pn.aktif = 'Y' ORDER BY v_perkara_detil.tanggal_putusan DESC`;
+    let query = `SELECT nomor_perkara, v_perkara_detil.tanggal_putusan,v_perkara_detil.tanggal_minutasi,panitera_nama FROM v_perkara_detil  LEFT JOIN perkara_putusan ON v_perkara_detil.perkara_id=perkara_putusan.perkara_id LEFT JOIN perkara_panitera_pn ON v_perkara_detil.perkara_id=perkara_panitera_pn.perkara_id WHERE v_perkara_detil.tanggal_putusan IS NOT NULL AND v_perkara_detil.tanggal_minutasi IS NOT NULL AND perkara_putusan.tanggal_bht IS NULL AND permohonan_banding IS NULL AND permohonan_kasasi IS NULL AND YEAR(v_perkara_detil.tanggal_putusan)>=2019  AND (((alur_perkara_id = 1 OR alur_perkara_id = 2 OR alur_perkara_id = 8 OR alur_perkara_id = 7) AND v_perkara_detil.tanggal_minutasi <= CURDATE())) AND perkara_panitera_pn.aktif = 'Y' ORDER BY v_perkara_detil.tanggal_putusan DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -289,7 +289,7 @@ const getDataSaksiTidakLengkap = () => {
 
 const getDataPutusanBelumBeritahuNew = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT perkara.perkara_id, alur_perkara_id,nomor_perkara, nama, pihak,perkara_putusan_pemberitahuan_putusan.pihak_id as pihak_pemb, tanggal_pemberitahuan_putusan, tanggal_putusan FROM perkara LEFT JOIN perkara_putusan_pemberitahuan_putusan ON perkara.perkara_id=perkara_putusan_pemberitahuan_putusan.perkara_id LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN pihak ON perkara_putusan_pemberitahuan_putusan.pihak_id=pihak.id WHERE alur_perkara_id !=114 AND tanggal_putusan is not null AND year(tanggal_putusan) > 2020 AND tanggal_pemberitahuan_putusan is null ORDER BY perkara.perkara_id DESC`;
+    let query = `SELECT perkara.perkara_id, alur_perkara_id,nomor_perkara, nama, pihak,perkara_putusan_pemberitahuan_putusan.pihak_id as pihak_pemb, tanggal_pemberitahuan_putusan, tanggal_putusan,status_putusan_id FROM perkara LEFT JOIN perkara_putusan_pemberitahuan_putusan ON perkara.perkara_id=perkara_putusan_pemberitahuan_putusan.perkara_id LEFT JOIN perkara_putusan ON perkara.perkara_id=perkara_putusan.perkara_id LEFT JOIN pihak ON perkara_putusan_pemberitahuan_putusan.pihak_id=pihak.id WHERE alur_perkara_id !=114 AND tanggal_putusan is not null AND year(tanggal_putusan) > 2020 AND tanggal_pemberitahuan_putusan is null ORDER BY perkara.perkara_id DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -302,13 +302,15 @@ const getDataPutusanBelumBeritahuNew = () => {
             let pihak_jenis;
             if (r.alur_perkara_id == 1 || r.alur_perkara_id == 8) {
               pihak_jenis = r.pihak == 1 ? "Penggugat" : "Tergugat";
-              resultArray.push(
-                `No Perkara : ${r.nomor_perkara},  tanggal putusan : ${moment(
-                  r.tanggal_putusan
-                ).format(
-                  "D-M-YYYY"
-                )}, pihak yang belum diberitahukan : ${pihak_jenis}`
-              );
+              if (r.status_putusan_id != 28) {
+                resultArray.push(
+                  `No Perkara : ${r.nomor_perkara},  tanggal putusan : ${moment(
+                    r.tanggal_putusan
+                  ).format(
+                    "D-M-YYYY"
+                  )}, pihak yang belum diberitahukan : ${pihak_jenis}`
+                );
+              }
             } else if (
               r.alur_perkara_id == 111 ||
               r.alur_perkara_id == 112 ||
@@ -316,6 +318,11 @@ const getDataPutusanBelumBeritahuNew = () => {
               r.alur_perkara_id == 118
             ) {
               pihak_jenis = r.pihak == 1 ? "Penuntut Umum" : "Terdakwa";
+              resultArray.push(
+                `No Perkara : ${r.nomor_perkara},  pihak yang belum diberitahukan : ${pihak_jenis}`
+              );
+            } else if (r.alur_perkara_id == 119) {
+              pihak_jenis = r.pihak == 1 ? "Pemohon" : "Termohon";
               resultArray.push(
                 `No Perkara : ${r.nomor_perkara},  pihak yang belum diberitahukan : ${pihak_jenis}`
               );
@@ -364,7 +371,7 @@ const getDataJadwalSidangPidana = () => {
 
 const getDataJadwalSidangPerdata = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, agenda, panitera_nama FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id=1 OR alur_perkara_id=2 OR alur_perkara_id=8) AND perkara_panitera_pn.aktif = 'Y' ORDER BY perkara.perkara_id DESC`;
+    let query = `SELECT nomor_perkara, agenda, panitera_nama FROM perkara LEFT JOIN perkara_jadwal_sidang ON perkara.perkara_id=perkara_jadwal_sidang.perkara_id LEFT JOIN perkara_panitera_pn ON perkara.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_sidang = CURDATE() AND (alur_perkara_id=1 OR alur_perkara_id=2 OR alur_perkara_id=8 OR alur_perkara_id=7) AND perkara_panitera_pn.aktif = 'Y' ORDER BY perkara.perkara_id DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -500,7 +507,36 @@ const getDataSisaPanjarKasasi = () => {
 
 const getDataCourtCalendar = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT rencana_agenda, nomor_perkara, rencana_tanggal, panitera_nama FROM (SELECT MAX(id) AS id_cc, perkara_id FROM perkara_court_calendar GROUP BY perkara_id ORDER BY perkara_id DESC) AS court_calendar LEFT JOIN perkara ON court_calendar.perkara_id=perkara.perkara_id LEFT JOIN perkara_court_calendar ON   court_calendar.id_cc = perkara_court_calendar.id LEFT JOIN perkara_putusan ON court_calendar.perkara_id = perkara_putusan.perkara_id LEFT JOIN perkara_mediasi ON court_calendar.perkara_id=perkara_mediasi.perkara_id LEFT JOIN perkara_panitera_pn ON court_calendar.perkara_id=perkara_panitera_pn.perkara_id WHERE tanggal_putusan IS NULL AND (rencana_agenda NOT LIKE '%putusan%' AND rencana_agenda NOT LIKE '%penetapan%') AND (mediasi_id IS NULL OR keputusan_mediasi IS NOT NULL) AND perkara_panitera_pn.aktif = 'Y' ORDER BY court_calendar.perkara_id DESC`;
+    let query = `SELECT 					
+    A.tanggal_pendaftaran, 
+    A.nomor_perkara, 
+    A.proses_terakhir_text,
+    A.para_pihak, 
+    
+    (SELECT panitera_nama 
+    FROM perkara_panitera_pn 
+    LEFT JOIN panitera_pn  ON panitera_pn.id = perkara_panitera_pn.panitera_id
+    WHERE perkara_panitera_pn.perkara_id= A.perkara_id AND perkara_panitera_pn.aktif='Y' ORDER BY perkara_panitera_pn.urutan ASC) AS paniteraku,
+    (SELECT GROUP_CONCAT(DISTINCT hkpn.nama_gelar ORDER BY hk.id ASC SEPARATOR '<br>') AS nama_hakim 
+    FROM perkara_hakim_pn AS hk
+    LEFT JOIN hakim_pn AS hkpn ON hkpn.id = hk.hakim_id
+    WHERE hk.perkara_id= A.perkara_id AND hk.aktif='Y' ORDER BY hk.urutan ASC) AS majelis_hakim
+          FROM perkara as A
+          LEFT JOIN perkara_hakim_pn as B ON B.perkara_id=A.perkara_id
+          LEFT JOIN perkara_jadwal_sidang as C ON C.perkara_id=A.perkara_id
+          LEFT JOIN perkara_panitera_pn as D ON D.perkara_id=A.perkara_id
+          WHERE A.alur_perkara_id NOT IN (18,112,113,114)	
+          AND A.perkara_id NOT IN (SELECT perkara_id FROM perkara_court_calendar 
+                                   WHERE (rencana_agenda LIKE '%putus%' OR rencana_agenda LIKE '%penetapan%' OR rencana_agenda LIKE '%cabut%' OR rencana_agenda LIKE '%gugur%' OR rencana_agenda LIKE '%akta perdamaian%' OR rencana_agenda LIKE '%P U T U S%'))
+          AND B.aktif = 'Y'		
+          AND D.aktif = 'Y'
+          AND C.tanggal_sidang IS NOT NULL								
+          AND A.perkara_id NOT IN (SELECT perkara_id FROM perkara_mediasi
+                                   WHERE dimulai_mediasi IS NOT NULL 
+                       AND hasil_mediasi IS NULL)
+          AND YEAR(A.tanggal_pendaftaran) = 2022
+          GROUP BY A.perkara_id
+          ORDER BY A.perkara_id DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -511,7 +547,7 @@ const getDataCourtCalendar = () => {
           let resultArray = [];
           result.forEach((r) => {
             resultArray.push(
-              `No Perkara : ${r.nomor_perkara}, PP : ${r.panitera_nama}`
+              `No Perkara : ${r.nomor_perkara}, PP : ${r.paniteraku}`
             );
           });
           responseMessage = resultArray.join("\n");
@@ -930,53 +966,9 @@ const getBelumPanggilan = () => {
 
 const getBelumEdocCourtCalendar = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT
-    A.nomor_perkara,
-    (
-      SELECT
-        panitera_nama
-      FROM
-        perkara_panitera_pn
-      WHERE
-        perkara_panitera_pn.perkara_id = A.perkara_id
-    ) as nama_panitera,
-    (
-      SELECT
-        GROUP_CONCAT(
-          DISTINCT G.nama_gelar
-          ORDER BY
-            E.id ASC SEPARATOR '<br>'
-        ) AS nama_hakim
-      FROM
-        perkara_hakim_pn AS E
-        LEFT JOIN hakim_pn AS G ON G.id = E.hakim_id
-      WHERE
-        E.aktif = 'Y'
-        AND E.perkara_id = A.perkara_id
-    ) AS nama_gelar_hakim,
-    A.proses_terakhir_text,
-    A.para_pihak
-  FROM
-    perkara AS A
-    LEFT JOIN perkara_putusan AS C ON C.perkara_id = A.perkara_id
-    LEFT JOIN perkara_panitera_pn AS D ON D.perkara_id = A.perkara_id
-    LEFT JOIN perkara_edoc_calendar AS F ON F.perkara_id = A.perkara_id
-    LEFT JOIN perkara_jadwal_sidang AS H ON H.perkara_id = A.perkara_id
-  WHERE
-    D.aktif = 'Y'
-    AND YEAR(A.tanggal_pendaftaran) = 2021
-    AND C.tanggal_minutasi IS NULL
-    AND H.dihadiri_oleh = '1'
-    AND TIMESTAMPDIFF(DAY, H.tanggal_sidang, NOW()) > '0'
-    AND (
-      F.edoc_calender IS NULL
-      OR F.edoc_calender = ''
-    )
-    AND A.alur_perkara_id NOT IN (18, 112, 113, 114)
-  GROUP BY
-    A.perkara_id
-  ORDER BY
-    A.tanggal_pendaftaran DESC`;
+    let date = new Date();
+    let year = date.getFullYear();
+    let query = `SELECT A.nomor_perkara, A.perkara_id, A.proses_terakhir_text, A.para_pihak FROM perkara AS A LEFT JOIN perkara_putusan AS C ON C.perkara_id=A.perkara_id LEFT JOIN perkara_edoc_calendar AS F ON F.perkara_id=A.perkara_id LEFT JOIN perkara_jadwal_sidang AS H ON H.perkara_id=A.perkara_id WHERE  YEAR(A.tanggal_pendaftaran) = ${year} AND C.tanggal_minutasi IS NULL AND H.dihadiri_oleh='1' AND TIMESTAMPDIFF(DAY,H.tanggal_sidang,NOW())>'0' AND (F.edoc_calender IS NULL OR F.edoc_calender = '') AND A.alur_perkara_id NOT IN (18,112,113,114) GROUP BY A.perkara_id ORDER BY A.tanggal_pendaftaran DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -987,7 +979,7 @@ const getBelumEdocCourtCalendar = () => {
           let resultArray = [];
           result.forEach((r) => {
             resultArray.push(
-              `No Perkara : ${r.nomor_perkara}, PP : ${r.nama_panitera}`
+              `No Perkara : ${r.nomor_perkara}`
             );
           });
           responseMessage = resultArray.join("\n");
@@ -1036,7 +1028,7 @@ const getDataBanding = () => {
 };
 
 const getDataKasasi = () => {
-  let query = `SELECT nomor_perkara_pn, permohonan_kasasi, alur_perkara_id FROM perkara_kasasi WHERE pengiriman_berkas_kasasi IS NULL AND tanggal_cabut IS NULL AND YEAR(permohonan_kasasi)>2021`;
+  let query = `SELECT nomor_perkara_pn, permohonan_kasasi, alur_perkara_id FROM perkara_kasasi WHERE pengiriman_berkas_kasasi IS NULL AND tanggal_cabut IS NULL AND tidak_memenuhi_syarat IS NULL AND YEAR(permohonan_kasasi)>2021`;
 
   return new Promise((resolve, reject) => {
     db.query(query, async (err, result) => {
@@ -1109,9 +1101,8 @@ const getDataPK = () => {
 };
 
 const getDataEdocPetitum = () => {
-  
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=YEAR(CURDATE()) AND (alur_perkara_id =1 OR alur_perkara_id =2 OR alur_perkara_id =8 ) AND petitum_dok = " "`;
+    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=2022 AND (alur_perkara_id =1 OR alur_perkara_id =2 OR alur_perkara_id =8 ) AND petitum_dok = " "`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -1141,7 +1132,7 @@ const getDataEdocPetitum = () => {
 
 const getDataEdocDakwaan = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=YEAR(CURDATE()) AND (alur_perkara_id =111 OR alur_perkara_id =112 OR alur_perkara_id =113 OR alur_perkara_id =118 ) AND dakwaan_dok = " "`;
+    let query = `SELECT nomor_perkara, petitum_dok, tanggal_pendaftaran FROM perkara WHERE YEAR(tanggal_pendaftaran)=2022 AND (alur_perkara_id =111 OR alur_perkara_id =112 OR alur_perkara_id =113 OR alur_perkara_id =118 ) AND dakwaan_dok = " "`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -1201,7 +1192,7 @@ const getDataEdocAnonimisasi = () => {
 
 const getDataBelumDelegasi = () => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT delegasi_masuk.id, nomor_perkara, tgl_relaas, delegasi_masuk.diinput_tanggal FROM delegasi_masuk LEFT JOIN delegasi_proses_masuk ON delegasi_masuk.id=delegasi_proses_masuk.delegasi_id WHERE YEAR(delegasi_masuk.diinput_tanggal) > 2022 AND (tgl_relaas IS NULL OR tgl_relaas = "")  ORDER BY delegasi_masuk.id DESC`;
+    let query = `SELECT delegasi_masuk.id, nomor_perkara, tgl_relaas, delegasi_masuk.diinput_tanggal FROM delegasi_masuk LEFT JOIN delegasi_proses_masuk ON delegasi_masuk.id=delegasi_proses_masuk.delegasi_id WHERE YEAR(delegasi_masuk.diinput_tanggal) >= 2022 AND (tgl_relaas IS NULL OR tgl_relaas = "")  ORDER BY delegasi_masuk.id DESC`;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -1230,8 +1221,7 @@ const getDataBelumDelegasi = () => {
   });
 };
 
-
-// getDataBelumDelegasi().then((res) => console.log(res));
+// getBelumEdocCourtCalendar().then((res) => console.log(res));
 module.exports = {
   getDataPenahanan,
   getDataBA,
@@ -1260,5 +1250,5 @@ module.exports = {
   getDataEdocPetitum,
   getDataEdocDakwaan,
   getDataEdocAnonimisasi,
-  getDataBelumDelegasi,
+  getDataBelumDelegasi
 };
