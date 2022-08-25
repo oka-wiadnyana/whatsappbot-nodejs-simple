@@ -60,7 +60,7 @@ let getSkorBulanan = async () => {
     return responseMessage;
   } catch (error) {
     responseMessage = "Koneksi ke EIS terputus";
-    return responMessage;
+    return responseMessage;
   }
 };
 
@@ -120,7 +120,7 @@ let getSkorTahunanKelas = async () => {
     return responseMessage;
   } catch (error) {
     responseMessage = "Koneksi ke EIS terputus";
-    return responMessage;
+    return responseMessage;
   }
 };
 
@@ -162,7 +162,7 @@ let getDataTahunan = async () => {
     return responseMessage;
   } catch (error) {
     responseMessage = "Koneksi ke EIS terputus";
-    return responMessage;
+    return responseMessage;
   }
 };
 
