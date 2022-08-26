@@ -16,6 +16,7 @@ const getData = require("./query");
 const groupNotif = require("./group-notif");
 const mis = require("./mis");
 const eis = require("./select");
+const pengumuman = require("./pengumuman");
 const express = require("express");
 const app = express();
 const port = 3000;
@@ -187,10 +188,35 @@ const checkRegisteredNumber = async function (number) {
 
 const groupId = "120363023416509037@g.us";
 
+// method pengumuman
+const sendPengumuman = async () => {
+  try {
+    let pengumumanMa = await pengumuman.getPengumumanMa();
+    let pengumumanBadilum = await pengumuman.getPengumumanBadilum();
+    let pengumumanPt = await pengumuman.getPengumumanPt();
+    let msg = `*Pengumuman Mahkamah Agung* \n${pengumumanMa} \n\n*Pengumuman Badilum* \n${pengumumanBadilum} \n\n*Pengumuman PT Denpasar* \n${pengumumanPt} `;
+    return msg;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+cron.schedule("00 09 * * *", () => {
+  sendPengumuman().then((res) => {
+    client.sendMessage(groupId, res);
+  });
+});
+
+cron.schedule("00 16 * * *", () => {
+  sendPengumuman().then((res) => {
+    client.sendMessage(groupId, res);
+  });
+});
+
 // first notif function
 const sendGroupFirst = async () => {
   try {
-    let eisBulanan = await eis.getSkorBulanan();
+    let pengumuman = await eispengumuman();
     let eisTahunan = await eis.getDataTahunan();
     let eisTahunanKategori = await eis.getSkorTahunanKelas();
     let promisePenahanan = groupNotif.getDataPenahanan();
