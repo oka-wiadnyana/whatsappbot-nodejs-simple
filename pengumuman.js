@@ -43,9 +43,9 @@ let getPengumumanBadilum = async () => {
     const message = responseMessage.join("\n");
     return message;
   } catch (error) {
-    responseMessage.push("Koneksi ke Badilum terputus");
+    responseMessage = "Koneksi ke Badilum terputus";
     await browser.close();
-    return responMessage;
+    return responseMessage;
   }
 };
 
@@ -99,7 +99,7 @@ let getPengumumanMa = async () => {
   } catch (error) {
     responseMessage = "Koneksi ke Mahkamah Agung terputus";
     await browser.close();
-    return responMessage;
+    return responseMessage;
   }
 };
 
@@ -139,11 +139,11 @@ let getPengumumanPt = async () => {
   } catch (error) {
     responseMessage = "Koneksi ke PT Denpasar terputus";
     await browser.close();
-    return responMessage;
+    return responseMessage;
   }
 };
 
-getPengumumanPt().then((res) => console.log(res));
+// getPengumumanPt().then((res) => console.log(res));
 // console.log(year);
 module.exports = {
   getPengumumanMa,
